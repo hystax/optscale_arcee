@@ -1,0 +1,17 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ide settings
+.idea/
+
+# tox
+.tox/
+
+# User-specific stuff:
+.coverage
+reports/
+.venv/
+dist/
+*.egg-info/
