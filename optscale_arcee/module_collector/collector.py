@@ -1,11 +1,12 @@
 import asyncio
 import concurrent.futures
-from functools import partial
 import inspect
 from modulefinder import ModuleFinder
 import os
 import sys
 import __main__
+
+from optscale_arcee.utils import run_async
 
 
 class Collector:
@@ -46,15 +47,6 @@ class Collector:
                     break
         return result
 
-    @classmethod
-    async def run_async(cls, func, *args, loop=None, executor=None, **kwargs):
-        if loop is None:
-            loop = asyncio.get_event_loop()
-        if executor is None:
-            executor = cls.executor
-        pfunc = partial(func, *args, **kwargs)
-        return await loop.run_in_executor(executor, pfunc)
-
     @staticmethod
     def _fallback():
         for m in sys.modules.values():
@@ -70,7 +62,7 @@ class Collector:
                 file = await cls.get_cfp()
         try:
             finder = ModuleFinder()
-            await cls.run_async(finder.run_script, file)
+            await run_async(finder.run_script, file, executor=cls.executor)
             m = finder.modules.keys()
         except (AttributeError, RecursionError):
             # try to bypass 40350/84530 ns mod issue
@@ -80,7 +72,7 @@ class Collector:
             # https://github.com/python/cpython/issues/84530
             # https://github.com/python/cpython/pull/19917
             # https://github.com/python/cpython/pull/29196
-            m = await cls.run_async(cls._fallback)
+            m = await run_async(cls._fallback, executor=cls.executor)
         if f_simplify:
             mods = await cls.apply_filter(m)
         else:
