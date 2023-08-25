@@ -198,7 +198,7 @@ def injected_methods_wrapper(service, original, *args, **kwargs):
     return res
 
 
-def submit_wrapper(original, submit_self, task_object, /, *args, **kwargs):
+def submit_wrapper(original, *args, **kwargs):
     # if task is submitted from submitted task
     caller_function = ThreadedMethodsTracker().get()
     if caller_function is None:
@@ -213,9 +213,10 @@ def submit_wrapper(original, submit_self, task_object, /, *args, **kwargs):
                 break
     # setting attribute to pass caller function name
     # inside task __call__ method
+    params = map_values_to_params(original, *args, **kwargs)
     if caller_function:
-        setattr(task_object, CALLER_FUNCTION_NAME, caller_function)
-    future = original(submit_self, task_object, *args, **kwargs)
+        setattr(params['task'], CALLER_FUNCTION_NAME, caller_function)
+    future = original(**params)
     return future
 
 

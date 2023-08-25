@@ -1,6 +1,7 @@
 import os
 import threading
 from contextlib import contextmanager
+from typing import List
 
 from optscale_arcee.utils import single
 
@@ -14,7 +15,7 @@ def get_package_name(path: str) -> str:
         os.path.dirname(path))).lower()
 
 
-def list_services() -> list[str]:
+def list_services() -> List[str]:
     services = []
     for a in os.listdir(os.path.dirname(__file__)):
         if os.path.isdir(a) and not a.startswith('_'):

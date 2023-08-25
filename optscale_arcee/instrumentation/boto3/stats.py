@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, List
 
 from optscale_arcee.instrumentation.stats import Stats
 from optscale_arcee.instrumentation.collector import Collector
@@ -68,7 +68,7 @@ def count_file(service_name: str, bucket: str, filename: str):
         Collector().add(stats_cls(files_accessed={bucket: {filename}}))
 
 
-def count_files(service_name: str, bucket: str, filenames: list[str]):
+def count_files(service_name: str, bucket: str, filenames: List[str]):
     stats_cls = _STATS_SERVICES.get(service_name)
     if stats_cls:
         Collector().add(stats_cls(files_accessed={bucket: {*filenames}}))
