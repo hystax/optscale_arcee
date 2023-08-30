@@ -37,13 +37,13 @@ arcee.finish()
 arcee.error()
 ```
 
-To use custom endpoint and enable\disable ssl checks (enable self-signed ssl certificates support):
+To use custom endpoint and enable/disable ssl checks (enable self-signed ssl certificates support):
 ```
 with arcee.init("token", "model_key", endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
     # some code
 ```
 
-Arcee daemon process periodically sends hardware & process info. Default heartbeat period is 1sec. However, 
+Arcee daemon process periodically sends hardware and process data. Default heartbeat period is 1sec. However, 
 arcee can be initialized with custom period:
 ```
 with arcee.init("token", "model_key", period=5):
@@ -92,21 +92,21 @@ arcee.error()
 ```
 
 ## Instrumenting external packages
-To enable all supported packages instrumentation, use base instrument method.
+To enable all supported packages instrumentation, use the base instrument method.
 ```
 from optscale_arcee.instrumentation import instrument
 
 instrument()
 ```
 
-To enable specific package instrumentation, use package related instrument method.
+To enable specific package instrumentation, use the package-related instrument method.
 ```
 from optscale_arcee.instrumentation import boto3 as arcee_boto3
 
 arcee_boto3.instrument()
 ```
 
-To enable service instrumentation in terms of specific package, use service related instrument method.
+To enable service instrumentation for a specific package, use the service-related instrument method.
 ```
 from optscale_arcee.instrumentation.boto3 import s3 as arcee_s3
 
