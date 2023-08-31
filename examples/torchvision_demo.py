@@ -1,3 +1,4 @@
+import boto3
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -6,6 +7,10 @@ from torchvision.transforms import ToTensor
 
 import optscale_arcee as arcee
 
+
+access_key_id = "access_key_id"
+secret_access_key = "secret_access_key"
+bucket = "bucket"
 
 filename = "torchvision.pth"
 
@@ -75,6 +80,7 @@ def test(dataloader, model, loss_fn):
 if __name__ == "__main__":
     # init arcee
     with arcee.init(token="test", model_key="torchvision"):
+        arcee.instrument()
         arcee.tag("project", "torchvision demo")
 
         # Download training data
@@ -128,3 +134,9 @@ if __name__ == "__main__":
         arcee.milestone("Saving model")
         torch.save(model.state_dict(), filename)
         print(f"+Saved PyTorch Model State to {filename}")
+        client = boto3.Session(
+            aws_access_key_id=access_key_id,
+            aws_secret_access_key=secret_access_key
+        ).client("s3")
+        client.upload_file(filename, bucket, filename)
+        print(f"+Uploaded PyTorch Model State to {bucket}/{filename}")
