@@ -2,3 +2,4 @@ tensorflow==2.10.0
 numpy==1.23.3
 torch==2.0.1
 torchvision==0.15.2
+boto3==1.26.160
