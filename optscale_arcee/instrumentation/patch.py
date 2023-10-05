@@ -2,7 +2,7 @@ import functools
 import inspect
 import logging
 from collections import defaultdict
-from typing import Callable
+from typing import Callable, Optional
 
 import gorilla
 
@@ -56,7 +56,7 @@ def _apply_patch(component: str, gorilla_patch: GorillaPatch):
 
 
 def patch(
-        package: str, service: str, destination: object, name: str,
+        package: str, service: Optional[str], destination: object, name: str,
         patch_func: Callable, is_package_patch=False, is_service_patch=False):
     original_func = gorilla.get_attribute(destination, name)
     if is_package_patch:
