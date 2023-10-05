@@ -7,17 +7,11 @@ import boto3
 from optscale_arcee.instrumentation.boto3 import s3
 from optscale_arcee.instrumentation.collector import Collector
 
-access_key_id = 'access_key_id'
-secret_access_key = 'secret_access_key'
-bucket = 'bucket'
+bucket = 'amikhalev-bucket-north'
 
 s3.instrument()
 
-session = boto3.Session(
-    aws_access_key_id=access_key_id,
-    aws_secret_access_key=secret_access_key
-)
-s3_client = session.client('s3')
+s3_client = boto3.client('s3')
 
 s3_client.list_objects_v2(Bucket=bucket, Prefix='')
 
