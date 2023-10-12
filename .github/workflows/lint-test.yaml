@@ -2,7 +2,7 @@ name: Lint and Test code
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, 'feature/*' ]
 
 permissions:
   contents: read

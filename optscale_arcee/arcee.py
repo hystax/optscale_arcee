@@ -4,17 +4,7 @@ import threading
 
 from optscale_arcee.sender.sender import Sender
 from optscale_arcee.name_generator import NameGenerator
-
-
-def single(class_):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
-
-    return get_instance
+from optscale_arcee.utils import single
 
 
 class Job(threading.Thread):

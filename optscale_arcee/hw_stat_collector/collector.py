@@ -1,11 +1,12 @@
-import asyncio
 import math
 import os
 import concurrent.futures
-from functools import partial, reduce
+from functools import reduce
 
 import GPUtil
 import psutil
+
+from optscale_arcee.utils import run_async
 
 # tune accuracy depending on #cpus
 _MEASURE_TIME = 1 - 1 / (os.cpu_count())
@@ -14,15 +15,6 @@ _TIME_INTERVALS = (_MEASURE_TIME + 0.05, _MEASURE_TIME + 0.01)
 
 class Collector:
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=10)
-
-    @classmethod
-    async def run_async(cls, func, *args, loop=None, executor=None, **kwargs):
-        if loop is None:
-            loop = asyncio.get_event_loop()
-        if executor is None:
-            executor = cls.executor
-        pfunc = partial(func, *args, **kwargs)
-        return await loop.run_in_executor(executor, pfunc)
 
     @staticmethod
     def _gpu_stats():
@@ -121,4 +113,4 @@ class Collector:
 
     @classmethod
     async def collect_stats(cls):
-        return await cls.run_async(cls._collect_stats)
+        return await run_async(cls._collect_stats, executor=cls.executor)

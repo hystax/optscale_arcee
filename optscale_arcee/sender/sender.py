@@ -1,6 +1,9 @@
 import aiohttp
 import threading
 
+from optscale_arcee.instrumentation.collector import (
+    Collector as InstrumentationCollector,
+)
 from optscale_arcee.platform import CollectorFactory
 from optscale_arcee.module_collector.collector import (
     Collector as ImportsCollector,
@@ -35,6 +38,10 @@ class Sender:
     @staticmethod
     async def _proc_data():
         return await HwCollector.collect_stats()
+
+    @staticmethod
+    async def _instrumentation_data():
+        return await InstrumentationCollector().get()
 
     @staticmethod
     async def _imports_data():
@@ -110,6 +117,8 @@ class Sender:
         data = dict()
         meta = await self.m()
         proc = await self._proc_data()
+        instrumentation = await self._instrumentation_data()
         data.update({"platform": meta.to_dict()})
         data.update({"proc_stats": proc})
+        data.update({"instrumentation_stats": instrumentation})
         return await self.send_post_request(uri, headers, data)
