@@ -61,8 +61,8 @@ class Collector:
         cpu_proc = min(
             [
                 round(
-                    process.cpu_percent(interval=proc_interval)
-                    / psutil.cpu_count(),
+                    process.cpu_percent(
+                        interval=proc_interval) / psutil.cpu_count(),
                     2,
                 ),
                 cpu_percent,

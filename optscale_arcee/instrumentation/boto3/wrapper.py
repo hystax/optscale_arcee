@@ -44,13 +44,10 @@ def is_rewrapped_method(distance: int = 1) -> bool:
         wrapper_frame = stack[distance]
         upper_frames = stack[distance + 1:]
         # calling wrapped method inside another wrapped method
-        res |= any(
-            map(
-                lambda x: x.filename == wrapper_frame.filename
-                and x.function == wrapper_frame.function,
-                upper_frames,
-            )
-        )
+        res |= any(map(lambda x:
+                       x.filename == wrapper_frame.filename and
+                       x.function == wrapper_frame.function,
+                       upper_frames))
     return res
 
 

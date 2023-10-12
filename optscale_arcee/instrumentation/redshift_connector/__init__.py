@@ -1,7 +1,4 @@
 from optscale_arcee.instrumentation.patch import patch, revert_patches
-from optscale_arcee.instrumentation.redshift_connector.stats import (
-    RedshiftConnectorStats,
-)
 from optscale_arcee.instrumentation.utils import get_package_name
 
 _PACKAGE = get_package_name(__file__)
