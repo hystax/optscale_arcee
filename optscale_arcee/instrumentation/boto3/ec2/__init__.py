@@ -1,7 +1,11 @@
 from optscale_arcee.instrumentation.boto3.stats import (
-    Ec2Stats, register_service)
+    Ec2Stats,
+    register_service,
+)
 from optscale_arcee.instrumentation.boto3.utils import (
-    get_service_name, get_package_name)
+    get_service_name,
+    get_package_name,
+)
 from optscale_arcee.instrumentation.patch import patch, revert_patches
 
 _SERVICE = get_service_name(__file__)
@@ -17,12 +21,18 @@ def instrument():
         pass
     else:
         from optscale_arcee.instrumentation.boto3.wrapper import (
-            create_api_method_wrapper)
+            create_api_method_wrapper,
+        )
 
         # patch basic client methods
-        patch(_PACKAGE, _SERVICE, botocore.client.ClientCreator,
-              '_create_api_method', create_api_method_wrapper,
-              is_service_patch=True)
+        patch(
+            _PACKAGE,
+            _SERVICE,
+            botocore.client.ClientCreator,
+            "_create_api_method",
+            create_api_method_wrapper,
+            is_service_patch=True,
+        )
 
     try:
         import boto3.resources.factory
@@ -30,9 +40,15 @@ def instrument():
         pass
     else:
         from optscale_arcee.instrumentation.boto3.wrapper import (
-            create_action_wrapper)
+            create_action_wrapper,
+        )
 
         # patch resource actions
-        patch(_PACKAGE, _SERVICE, boto3.resources.factory.ResourceFactory,
-              '_create_action', create_action_wrapper,
-              is_service_patch=True)
+        patch(
+            _PACKAGE,
+            _SERVICE,
+            boto3.resources.factory.ResourceFactory,
+            "_create_action",
+            create_action_wrapper,
+            is_service_patch=True,
+        )

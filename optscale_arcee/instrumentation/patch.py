@@ -40,12 +40,13 @@ def update_wrapper(wrapper, wrapped):
 
 
 def _create_patch(
-        destination: object, name: str, patch_obj: object
+    destination: object, name: str, patch_obj: object
 ) -> GorillaPatch:
     gorilla_patch = GorillaPatch(
-        destination, name,
+        destination,
+        name,
         patch_obj,
-        settings=PatcherSettings(allow_hit=True, store_hit=True)
+        settings=PatcherSettings(allow_hit=True, store_hit=True),
     )
     return gorilla_patch
 
@@ -56,16 +57,27 @@ def _apply_patch(component: str, gorilla_patch: GorillaPatch):
 
 
 def patch(
-        package: str, service: Optional[str], destination: object, name: str,
-        patch_func: Callable, is_package_patch=False, is_service_patch=False):
+    package: str,
+    service: Optional[str],
+    destination: object,
+    name: str,
+    patch_func: Callable,
+    is_package_patch=False,
+    is_service_patch=False,
+):
     original_func = gorilla.get_attribute(destination, name)
     if is_package_patch:
+
         def wrapper(*args, **kwargs):
             return patch_func(package, original_func, *args, **kwargs)
+
     elif is_service_patch:
+
         def wrapper(*args, **kwargs):
             return patch_func(service, original_func, *args, **kwargs)
+
     else:
+
         def wrapper(*args, **kwargs):
             return patch_func(original_func, *args, **kwargs)
 

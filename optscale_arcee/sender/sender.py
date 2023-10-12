@@ -2,7 +2,8 @@ import aiohttp
 import threading
 
 from optscale_arcee.instrumentation.collector import (
-    Collector as InstrumentationCollector)
+    Collector as InstrumentationCollector,
+)
 from optscale_arcee.platform import CollectorFactory
 from optscale_arcee.module_collector.collector import (
     Collector as ImportsCollector,

@@ -11,14 +11,13 @@ def get_service_name(path: str) -> str:
 
 
 def get_package_name(path: str) -> str:
-    return os.path.basename(os.path.dirname(
-        os.path.dirname(path))).lower()
+    return os.path.basename(os.path.dirname(os.path.dirname(path))).lower()
 
 
 def list_services() -> List[str]:
     services = []
     for a in os.listdir(os.path.dirname(__file__)):
-        if os.path.isdir(a) and not a.startswith('_'):
+        if os.path.isdir(a) and not a.startswith("_"):
             services.append(a)
     return services
 
@@ -28,6 +27,7 @@ class ThreadedMethodsTracker:
     """
     Track what method in what thread is executed
     """
+
     TID_METHOD_MAP = {}
     TID_COUNTER_MAP = {}
 

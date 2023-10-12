@@ -5,11 +5,11 @@ from optscale_arcee.instrumentation.stats import Stats
 
 
 class RedshiftConnectorStats(Stats):
-    __slots__ = ('queries',)
+    __slots__ = ("queries",)
 
     @property
     def package(self):
-        return 'redshift_connector'
+        return "redshift_connector"
 
 
 def count_queries(queries: List[dict]):

@@ -19,29 +19,29 @@ def is_service_registered(service_name: str):
 
 
 class Boto3Stats(Stats):
-    __slots__ = ('method_calls',)
+    __slots__ = ("method_calls",)
 
     @property
     def package(self):
-        return 'boto3'
+        return "boto3"
 
 
 class S3Stats(Boto3Stats):
     __slots__ = (
-        'bytes_downloaded',
-        'bytes_uploaded',
-        'files_accessed',
+        "bytes_downloaded",
+        "bytes_uploaded",
+        "files_accessed",
     )
 
     @property
     def service(self):
-        return 's3'
+        return "s3"
 
 
 class Ec2Stats(Boto3Stats):
     @property
     def service(self):
-        return 'ec2'
+        return "ec2"
 
 
 def count_uploaded_bytes(service_name: str, bytes_uploaded: int):
