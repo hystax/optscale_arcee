@@ -54,7 +54,7 @@ class Arcee:
         self._run = None
         self._tags = dict()
         self._name = None
-        self._hp = dict()
+        self._hyperparams = dict()
 
     @property
     def run(self):
@@ -82,13 +82,13 @@ class Arcee:
         self._name = value
 
     @property
-    def hp(self):
-        return self._hp
+    def hyperparams(self):
+        return self._hyperparams
 
-    @hp.setter
-    def hp(self, value):
+    @hyperparams.setter
+    def hyperparams(self, value):
         k, v = value
-        self._hp.update({k, v})
+        self._hyperparams.update({k, v})
 
     def __enter__(self):
         return self
@@ -126,10 +126,11 @@ def init(
     return arcee
 
 
-def hp(key, value):
+def hyperparams(key, value):
     arcee = Arcee()
-    arcee.hp = (key, value)
-    asyncio.run(arcee.sender.add_hyperparams(arcee.run, arcee.token, arcee.hp))
+    arcee.hyperparams = (key, value)
+    asyncio.run(arcee.sender.add_hyperparams(
+        arcee.run, arcee.token, arcee.hyperparams))
 
 
 def tag(key, value):

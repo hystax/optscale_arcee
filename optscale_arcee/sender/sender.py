@@ -133,4 +133,6 @@ class Sender:
     async def add_hyperparams(self, run_id, token, hyperparams):
         uri = "%s/run/%s" % (self.endpoint_url, run_id)
         headers = {"x-api-key": token, "Content-Type": "application/json"}
-        return await self.send_patch_request(uri, headers, {"hyperparams": hyperparams})
+        return await self.send_patch_request(
+            uri, headers, {"hyperparameters": hyperparams}
+        )
