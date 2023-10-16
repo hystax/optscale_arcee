@@ -52,8 +52,9 @@ class Arcee:
         self.sender = Sender(endpoint_url, ssl, self.shutdown_flag)
         self.hb = None
         self._run = None
-        self._tags = {}
+        self._tags = dict()
         self._name = None
+        self._hp = dict()
 
     @property
     def run(self):
@@ -79,6 +80,15 @@ class Arcee:
     @name.setter
     def name(self, value):
         self._name = value
+
+    @property
+    def hp(self):
+        return self._hp
+
+    @hp.setter
+    def hp(self, value):
+        k, v = value
+        self._hp.update({k, v})
 
     def __enter__(self):
         return self
@@ -114,6 +124,12 @@ def init(
         )
     )
     return arcee
+
+
+def hp(key, value):
+    arcee = Arcee()
+    arcee.hp = (key, value)
+    asyncio.run(arcee.sender.add_hyperparams(arcee.run, arcee.token, arcee.hp))
 
 
 def tag(key, value):
