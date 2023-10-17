@@ -132,6 +132,12 @@ def stage(name):
     asyncio.run(arcee.sender.create_stage(arcee.run, arcee.token, name))
 
 
+def dataset(path):
+    arcee = Arcee()
+    asyncio.run(arcee.sender.register_datasets(
+        arcee.run, arcee.name, arcee.model_key, path, arcee.token))
+
+
 def finish():
     arcee = Arcee()
     try:

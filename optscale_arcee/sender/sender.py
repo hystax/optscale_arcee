@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import aiohttp
 import threading
 
@@ -40,21 +42,21 @@ class Sender:
     async def _imports_data():
         return await ImportsCollector.get_imports()
 
-    async def send_get_request(self, url, headers=None, params=None) -> str:
+    async def send_get_request(self, url, headers=None, params=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(
                 url, params=params, raise_for_status=True, ssl=self.ssl
             ) as response:
                 return await response.json()
 
-    async def send_post_request(self, url, headers=None, data=None) -> str:
+    async def send_post_request(self, url, headers=None, data=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.post(
                 url, json=data, raise_for_status=True, ssl=self.ssl
             ) as response:
                 return await response.json()
 
-    async def send_patch_request(self, url, headers=None, data=None) -> str:
+    async def send_patch_request(self, url, headers=None, data=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.patch(
                 url, json=data, raise_for_status=True, ssl=self.ssl
@@ -113,3 +115,16 @@ class Sender:
         data.update({"platform": meta.to_dict()})
         data.update({"proc_stats": proc})
         return await self.send_post_request(uri, headers, data)
+
+    @check_shutdown_flag_set
+    async def register_datasets(self, run_id, run_name, model_key, path, token):
+        uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+
+        data = {
+            "path": path,
+            "name": f"Dataset {datetime.utcnow().timestamp()}",
+            "description": f"Discovered in training "
+                           f"{model_key} - {run_name}({run_id})"
+        }
+        await self.send_post_request(uri, headers, data)
