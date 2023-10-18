@@ -64,7 +64,7 @@ arcee.stage("calculation")
 ```
 
 ## Logging datasets
-To log dataset, use the dataset method with the following parameter:
+To log a dataset, use the dataset method with the following parameter:
 - path (str): the path of the dataset.
 ```
 arcee.dataset("dataset_path")
