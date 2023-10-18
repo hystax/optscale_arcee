@@ -88,7 +88,7 @@ class Arcee:
     @hyperparams.setter
     def hyperparams(self, value):
         k, v = value
-        self._hyperparams.update({k, v})
+        self._hyperparams.update({k: v})
 
     def __enter__(self):
         return self
@@ -126,7 +126,7 @@ def init(
     return arcee
 
 
-def hyperparams(key, value):
+def hyperparam(key, value):
     arcee = Arcee()
     arcee.hyperparams = (key, value)
     asyncio.run(arcee.sender.add_hyperparams(
