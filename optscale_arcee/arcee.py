@@ -127,6 +127,13 @@ def init(
 
 
 def hyperparam(key, value):
+    """
+    Add hyperparameter
+    Args:
+        key: string
+        value: float
+    Returns:
+    """
     arcee = Arcee()
     arcee.hyperparams = (key, value)
     asyncio.run(arcee.sender.add_hyperparams(
