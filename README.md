@@ -63,6 +63,11 @@ To add stages:
 arcee.stage("calculation")
 ```
 
+To add hyperparameters:
+```sh
+arcee.hyperparam("epochs", 5)
+```
+
 ## Logging datasets
 To log a dataset, use the dataset method with the following parameter:
 - path (str): the path of the dataset.
