@@ -117,7 +117,7 @@ class Sender:
         return await self.send_post_request(uri, headers, data)
 
     @check_shutdown_flag_set
-    async def register_datasets(self, run_id, run_name, model_key, path, token):
+    async def register_dataset(self, run_id, run_name, model_key, path, token):
         uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
         headers = {"x-api-key": token, "Content-Type": "application/json"}
 

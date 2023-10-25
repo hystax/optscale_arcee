@@ -55,6 +55,7 @@ class Arcee:
         self._tags = dict()
         self._name = None
         self._hyperparams = dict()
+        self._dataset = None
 
     @property
     def run(self):
@@ -89,6 +90,14 @@ class Arcee:
     def hyperparams(self, value):
         k, v = value
         self._hyperparams.update({k: v})
+
+    @property
+    def dataset(self):
+        return self._dataset
+
+    @dataset.setter
+    def dataset(self, value):
+        self._dataset = value
 
     def __enter__(self):
         return self
@@ -158,8 +167,10 @@ def stage(name):
 
 def dataset(path):
     arcee = Arcee()
-    asyncio.run(arcee.sender.register_datasets(
-        arcee.run, arcee.name, arcee.model_key, path, arcee.token))
+    if arcee.dataset is None:
+        arcee.dataset = path
+        asyncio.run(arcee.sender.register_dataset(
+            arcee.run, arcee.name, arcee.model_key, path, arcee.token))
 
 
 def finish():
