@@ -123,7 +123,7 @@ class Sender:
 
         data = {
             "path": path,
-            "name": f"Dataset {datetime.utcnow().timestamp()}",
+            "name": f"Dataset {int(datetime.utcnow().timestamp())}",
             "description": f"Discovered in training "
                            f"{model_key} - {run_name}({run_id})"
         }
