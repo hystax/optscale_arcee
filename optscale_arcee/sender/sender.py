@@ -4,10 +4,9 @@ import aiohttp
 import threading
 
 from optscale_arcee.platform import CollectorFactory
-from optscale_arcee.module_collector.collector import (
-    Collector as ImportsCollector,
-)
-from optscale_arcee.hw_stat_collector.collector import Collector as HwCollector
+from optscale_arcee.collectors.git import Collector as GitCollector
+from optscale_arcee.collectors.hardware import Collector as HardwareCollector
+from optscale_arcee.collectors.module import Collector as ImportsCollector
 
 
 def check_shutdown_flag_set(function):
@@ -36,11 +35,15 @@ class Sender:
 
     @staticmethod
     async def _proc_data():
-        return await HwCollector.collect_stats()
+        return await HardwareCollector.collect_stats()
 
     @staticmethod
     async def _imports_data():
         return await ImportsCollector.get_imports()
+
+    @staticmethod
+    async def _git_data():
+        return await GitCollector.collect()
 
     async def send_get_request(self, url, headers=None, params=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
@@ -67,7 +70,11 @@ class Sender:
     async def get_run_id(self, model_key, token, run_name):
         uri = "%s/applications/%s/run" % (self.endpoint_url, model_key)
         headers = {"x-api-key": token, "Content-Type": "application/json"}
-        data = {"imports": await self._imports_data(), "name": run_name}
+        data = {
+            "imports": await self._imports_data(),
+            "git": await self._git_data(),
+            "name": run_name
+        }
         return await self.send_post_request(uri, headers, data)
 
     @check_shutdown_flag_set
