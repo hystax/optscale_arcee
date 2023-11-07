@@ -4,6 +4,8 @@ import aiohttp
 import threading
 
 from optscale_arcee.platform import CollectorFactory
+from optscale_arcee.collectors.command_line import (
+    Collector as CommandCollector)
 from optscale_arcee.collectors.git import Collector as GitCollector
 from optscale_arcee.collectors.hardware import Collector as HardwareCollector
 from optscale_arcee.collectors.module import Collector as ImportsCollector
@@ -45,6 +47,10 @@ class Sender:
     async def _git_data():
         return await GitCollector.collect()
 
+    @staticmethod
+    async def _self_command():
+        return await CommandCollector.collect()
+
     async def send_get_request(self, url, headers=None, params=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(
@@ -73,6 +79,7 @@ class Sender:
         data = {
             "imports": await self._imports_data(),
             "git": await self._git_data(),
+            "command": await self._self_command(),
             "name": run_name
         }
         return await self.send_post_request(uri, headers, data)
