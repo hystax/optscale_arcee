@@ -9,6 +9,7 @@ from optscale_arcee.collectors.command_line import (
 from optscale_arcee.collectors.git import Collector as GitCollector
 from optscale_arcee.collectors.hardware import Collector as HardwareCollector
 from optscale_arcee.collectors.module import Collector as ImportsCollector
+from optscale_arcee.collectors.console import Collector as OutCollector
 
 
 def check_shutdown_flag_set(function):
@@ -50,6 +51,10 @@ class Sender:
     @staticmethod
     async def _self_command():
         return await CommandCollector.collect()
+
+    @staticmethod
+    async def _output():
+        return await OutCollector.collect()
 
     async def send_get_request(self, url, headers=None, params=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
@@ -150,3 +155,10 @@ class Sender:
         return await self.send_patch_request(
             uri, headers, {"hyperparameters": hyperparams}
         )
+
+    async def send_console(self, run_id, token):
+        uri = f"{self.endpoint_url}/run/{run_id}/consoles"
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+
+        data = await self._output()
+        await self.send_post_request(uri, headers, data)
