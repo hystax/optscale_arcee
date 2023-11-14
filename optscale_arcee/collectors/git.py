@@ -41,7 +41,7 @@ class Collector:
                 "commit_id": cls.__get_commit_id(),
                 "status": cls.__get_status()
             }
-        except FileNotFoundError:
+        except (FileNotFoundError, subprocess.CalledProcessError):
             return
 
     @classmethod

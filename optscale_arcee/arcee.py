@@ -3,6 +3,8 @@ import time
 import threading
 
 from optscale_arcee.sender.sender import Sender
+from optscale_arcee.collectors.console import (
+    acquire_console, release_console)
 from optscale_arcee.name_generator import NameGenerator
 from optscale_arcee.utils import single
 
@@ -103,6 +105,7 @@ class Arcee:
 def init(
     token, model_key, run_name=None, endpoint_url=None, ssl=True, period=1
 ):
+    acquire_console()
     arcee = Arcee(token, model_key, endpoint_url, ssl)
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
@@ -164,8 +167,15 @@ def dataset(path):
 
 
 def finish():
+    release_console()
     arcee = Arcee()
     try:
+        asyncio.run(
+            arcee.sender.send_console(
+                arcee.run,
+                arcee.token
+            )
+        )
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
@@ -180,8 +190,15 @@ def finish():
 
 
 def error():
+    release_console()
     arcee = Arcee()
     try:
+        asyncio.run(
+            arcee.sender.send_console(
+                arcee.run,
+                arcee.token
+            )
+        )
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
