@@ -1,6 +1,7 @@
 import concurrent.futures
 from io import StringIO
 import sys
+from typing import Dict
 
 from optscale_arcee.utils import run_async
 
@@ -63,7 +64,7 @@ class Collector:
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 
     @classmethod
-    def _collect(cls) -> dict[str, str]:
+    def _collect(cls) -> Dict[str, str]:
         return {
             "output": stdout_writes.get_writes(),
             "error": stderr_writes.get_writes()

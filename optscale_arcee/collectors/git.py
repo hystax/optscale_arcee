@@ -1,8 +1,13 @@
 import concurrent.futures
+import os
+import sys
 import subprocess
+
 from typing import Optional
 
 from optscale_arcee.utils import run_async
+
+EXECUTABLE_DIR = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 
 class Collector:
@@ -11,23 +16,27 @@ class Collector:
     @staticmethod
     def __get_remote() -> str:
         return subprocess.check_output(
-            ["git", "config", "--get", "remote.origin.url"]
+            ["git", "config", "--get", "remote.origin.url"],
+            cwd=EXECUTABLE_DIR
         ).decode('UTF-8').strip()
 
     @staticmethod
     def __get_branch() -> str:
         return subprocess.check_output(
-            ["git", "branch", "--show-current"]).decode('UTF-8').strip()
+            ["git", "branch", "--show-current"],
+            cwd=EXECUTABLE_DIR).decode('UTF-8').strip()
 
     @staticmethod
     def __get_commit_id() -> str:
         return subprocess.check_output(
-            ["git", "rev-parse", "HEAD"]).decode('UTF-8').strip()
+            ["git", "rev-parse", "HEAD"],
+            cwd=EXECUTABLE_DIR).decode('UTF-8').strip()
 
     @staticmethod
     def __get_status() -> str:
         try:
-            subprocess.check_call(["git", "diff", "--exit-code", "--quiet"])
+            subprocess.check_call(["git", "diff", "--exit-code", "--quiet"],
+                                  cwd=EXECUTABLE_DIR)
             return "clean"
         except subprocess.CalledProcessError:
             return "dirty"
