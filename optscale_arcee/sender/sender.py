@@ -1,11 +1,15 @@
+from datetime import datetime
+
 import aiohttp
 import threading
 
 from optscale_arcee.platform import CollectorFactory
-from optscale_arcee.module_collector.collector import (
-    Collector as ImportsCollector,
-)
-from optscale_arcee.hw_stat_collector.collector import Collector as HwCollector
+from optscale_arcee.collectors.command_line import (
+    Collector as CommandCollector)
+from optscale_arcee.collectors.git import Collector as GitCollector
+from optscale_arcee.collectors.hardware import Collector as HardwareCollector
+from optscale_arcee.collectors.module import Collector as ImportsCollector
+from optscale_arcee.collectors.console import Collector as OutCollector
 
 
 def check_shutdown_flag_set(function):
@@ -34,27 +38,39 @@ class Sender:
 
     @staticmethod
     async def _proc_data():
-        return await HwCollector.collect_stats()
+        return await HardwareCollector.collect_stats()
 
     @staticmethod
     async def _imports_data():
         return await ImportsCollector.get_imports()
 
-    async def send_get_request(self, url, headers=None, params=None) -> str:
+    @staticmethod
+    async def _git_data():
+        return await GitCollector.collect()
+
+    @staticmethod
+    async def _self_command():
+        return await CommandCollector.collect()
+
+    @staticmethod
+    async def _output():
+        return await OutCollector.collect()
+
+    async def send_get_request(self, url, headers=None, params=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(
                 url, params=params, raise_for_status=True, ssl=self.ssl
             ) as response:
                 return await response.json()
 
-    async def send_post_request(self, url, headers=None, data=None) -> str:
+    async def send_post_request(self, url, headers=None, data=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.post(
                 url, json=data, raise_for_status=True, ssl=self.ssl
             ) as response:
                 return await response.json()
 
-    async def send_patch_request(self, url, headers=None, data=None) -> str:
+    async def send_patch_request(self, url, headers=None, data=None) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.patch(
                 url, json=data, raise_for_status=True, ssl=self.ssl
@@ -65,7 +81,12 @@ class Sender:
     async def get_run_id(self, model_key, token, run_name):
         uri = "%s/applications/%s/run" % (self.endpoint_url, model_key)
         headers = {"x-api-key": token, "Content-Type": "application/json"}
-        data = {"imports": await self._imports_data(), "name": run_name}
+        data = {
+            "imports": await self._imports_data(),
+            "git": await self._git_data(),
+            "command": await self._self_command(),
+            "name": run_name
+        }
         return await self.send_post_request(uri, headers, data)
 
     @check_shutdown_flag_set
@@ -113,3 +134,31 @@ class Sender:
         data.update({"platform": meta.to_dict()})
         data.update({"proc_stats": proc})
         return await self.send_post_request(uri, headers, data)
+
+    @check_shutdown_flag_set
+    async def register_dataset(self, run_id, run_name, model_key, path, token):
+        uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+
+        data = {
+            "path": path,
+            "name": f"Dataset {int(datetime.utcnow().timestamp())}",
+            "description": f"Discovered in training "
+                           f"{model_key} - {run_name}({run_id})"
+        }
+        await self.send_post_request(uri, headers, data)
+
+    @check_shutdown_flag_set
+    async def add_hyperparams(self, run_id, token, hyperparams):
+        uri = "%s/run/%s" % (self.endpoint_url, run_id)
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        return await self.send_patch_request(
+            uri, headers, {"hyperparameters": hyperparams}
+        )
+
+    async def send_console(self, run_id, token):
+        uri = f"{self.endpoint_url}/run/{run_id}/consoles"
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+
+        data = await self._output()
+        await self.send_post_request(uri, headers, data)

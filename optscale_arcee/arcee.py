@@ -3,18 +3,10 @@ import time
 import threading
 
 from optscale_arcee.sender.sender import Sender
+from optscale_arcee.collectors.console import (
+    acquire_console, release_console)
 from optscale_arcee.name_generator import NameGenerator
-
-
-def single(class_):
-    instances = {}
-
-    def get_instance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
-
-    return get_instance
+from optscale_arcee.utils import single
 
 
 class Job(threading.Thread):
@@ -52,8 +44,10 @@ class Arcee:
         self.sender = Sender(endpoint_url, ssl, self.shutdown_flag)
         self.hb = None
         self._run = None
-        self._tags = {}
+        self._tags = dict()
         self._name = None
+        self._hyperparams = dict()
+        self._dataset = None
 
     @property
     def run(self):
@@ -80,6 +74,23 @@ class Arcee:
     def name(self, value):
         self._name = value
 
+    @property
+    def hyperparams(self):
+        return self._hyperparams
+
+    @hyperparams.setter
+    def hyperparams(self, value):
+        k, v = value
+        self._hyperparams.update({k: v})
+
+    @property
+    def dataset(self):
+        return self._dataset
+
+    @dataset.setter
+    def dataset(self, value):
+        self._dataset = value
+
     def __enter__(self):
         return self
 
@@ -94,6 +105,7 @@ class Arcee:
 def init(
     token, model_key, run_name=None, endpoint_url=None, ssl=True, period=1
 ):
+    acquire_console()
     arcee = Arcee(token, model_key, endpoint_url, ssl)
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
@@ -116,6 +128,20 @@ def init(
     return arcee
 
 
+def hyperparam(key, value):
+    """
+    Add hyperparameter
+    Args:
+        key: string
+        value: float
+    Returns:
+    """
+    arcee = Arcee()
+    arcee.hyperparams = (key, value)
+    asyncio.run(arcee.sender.add_hyperparams(
+        arcee.run, arcee.token, arcee.hyperparams))
+
+
 def tag(key, value):
     arcee = Arcee()
     arcee.tags = (key, value)
@@ -132,9 +158,24 @@ def stage(name):
     asyncio.run(arcee.sender.create_stage(arcee.run, arcee.token, name))
 
 
+def dataset(path):
+    arcee = Arcee()
+    if arcee.dataset is None:
+        arcee.dataset = path
+        asyncio.run(arcee.sender.register_dataset(
+            arcee.run, arcee.name, arcee.model_key, path, arcee.token))
+
+
 def finish():
+    release_console()
     arcee = Arcee()
     try:
+        asyncio.run(
+            arcee.sender.send_console(
+                arcee.run,
+                arcee.token
+            )
+        )
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
@@ -149,8 +190,15 @@ def finish():
 
 
 def error():
+    release_console()
     arcee = Arcee()
     try:
+        asyncio.run(
+            arcee.sender.send_console(
+                arcee.run,
+                arcee.token
+            )
+        )
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
