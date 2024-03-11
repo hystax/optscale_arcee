@@ -162,3 +162,25 @@ class Sender:
 
         data = await self._output()
         await self.send_post_request(uri, headers, data)
+
+    @check_shutdown_flag_set
+    async def add_model(self, token, key):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        model = await self.send_post_request(
+            self.endpoint_url + '/models', headers, {"key": key}
+        )
+        return model.get('_id')
+
+    @check_shutdown_flag_set
+    async def assign_model_run(self, model_id, run_id, token, path=None):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        body = {'path': path} if path else {}
+        await self.send_post_request(uri, headers, body)
+
+    @check_shutdown_flag_set
+    async def add_version(self, model_id, run_id, token, version):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        body = {'version': version}
+        await self.send_patch_request(uri, headers, body)
