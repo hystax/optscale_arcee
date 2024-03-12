@@ -5,6 +5,6 @@ with arcee.init("test", "simple"):
     arcee.tag("test1", "test2")
     arcee.milestone("just a milestone")
     arcee.model("model_key", "/src/simple.py")
-    arcee.set_version("1.23.45-rc")
+    arcee.set_model_version("1.23.45-rc")
     arcee.send({"t": 2})
 print(arcee.info())

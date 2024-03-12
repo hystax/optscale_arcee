@@ -74,3 +74,17 @@ To log a dataset, use the dataset method with the following parameter:
 ```
 arcee.dataset("dataset_path")
 ```
+
+## Models
+To create a model, use the model method with the following parameters:
+- key (str): the unique key of the model
+- path (str): the path of the run artifacts
+```
+arcee.model("my_model", "/home/user/my_model")
+```
+
+To set custom model version, use the set_model_version method with the following parameter:
+- version (str): version name
+```
+arcee.set_model_version("1.2.3-release")
+```

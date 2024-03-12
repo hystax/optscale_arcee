@@ -260,7 +260,7 @@ def model(key, path=None):
     )
 
 
-def set_version(version):
+def set_model_version(version):
     arcee = Arcee()
     asyncio.run(
         arcee.sender.add_version(
