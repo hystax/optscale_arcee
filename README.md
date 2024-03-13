@@ -18,26 +18,26 @@ import optscale_arcee as arcee
 
 ```sh
 # init arcee using context manager syntax
-with arcee.init('token', 'model_key'):
+with arcee.init('token', 'task_key'):
     # some code
 ```
 
 To use custom endpoint and enable\disable ssl checks (supports using self-signed ssl certificates):
 ```sh
-with arcee.init('token', 'model_key', endpoint_url='https://my.custom.endpoint:443/arcee/v2', ssl=False):
+with arcee.init('token', 'task_key', endpoint_url='https://my.custom.endpoint:443/arcee/v2', ssl=False):
     # some code
 ```
 
 Alternatively arcee can be initialized via function call. However manual finish is required:
 ```sh
-arcee.init('token', 'model_key')
+arcee.init('token', 'task_key')
 # some code
 arcee.finish()
 ```
 
 Or in error case:
 ```sh
-arcee.init('token', 'model_key')
+arcee.init('token', 'task_key')
 # some code
 arcee.error()
 ```

@@ -74,7 +74,7 @@ def test(dataloader, model, loss_fn):
 
 if __name__ == "__main__":
     # init arcee
-    with arcee.init(token="test", model_key="torchvision"):
+    with arcee.init(token="test", task_key="torchvision"):
         arcee.tag("project", "torchvision demo")
 
         # Download training data

@@ -7,7 +7,7 @@ import optscale_arcee as arcee
 
 
 # init arcee
-arcee.init(token="test", model_key="linear_regression")
+arcee.init(token="test", task_key="linear_regression")
 
 arcee.tag("project", "regression")
 
