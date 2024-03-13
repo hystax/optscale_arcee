@@ -49,6 +49,7 @@ class Arcee:
         self._name = None
         self._hyperparams = dict()
         self._dataset = None
+        self._model = None
 
     @property
     def run(self):
@@ -101,6 +102,14 @@ class Arcee:
         else:
             error()
         return exc_type is None
+
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
 
 
 def init(
@@ -233,5 +242,28 @@ def send(data):
         arcee.sender.send_stats(
             arcee.token,
             {"project": arcee.task_key, "run": arcee.run, "data": data},
+        )
+    )
+
+
+def model(key, path=None):
+    arcee = Arcee()
+    arcee.model = asyncio.run(
+        arcee.sender.add_model(
+            arcee.token, key
+        )
+    )
+    asyncio.run(
+        arcee.sender.assign_model_run(
+            arcee.model, arcee.run, arcee.token, path=path
+        )
+    )
+
+
+def set_model_version(version):
+    arcee = Arcee()
+    asyncio.run(
+        arcee.sender.add_version(
+            arcee.model, arcee.run, arcee.token, version
         )
     )
