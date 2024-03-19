@@ -182,5 +182,5 @@ class Sender:
     async def add_version(self, model_id, run_id, token, version):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
         uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
-        body = {'version': version}
+        body = {'version': str(version)}
         await self.send_patch_request(uri, headers, body)
