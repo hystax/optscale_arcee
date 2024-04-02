@@ -129,7 +129,8 @@ def init(
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
     )
-    run_id = asyncio.run(arcee.sender.get_run_id(task_key, token, name))["id"]
+    run_id = asyncio.run(arcee.sender.get_run_id(
+        task_key or model_key, token, name))["id"]
     arcee.run = run_id
     arcee.name = name
     arcee.hb = Job(
