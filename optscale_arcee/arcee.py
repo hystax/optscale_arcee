@@ -1,4 +1,5 @@
 import asyncio
+import warnings
 import time
 import threading
 
@@ -36,11 +37,11 @@ class Job(threading.Thread):
 @single
 class Arcee:
     def __init__(
-        self, token=None, model_key=None, endpoint_url=None, ssl=True
+        self, token=None, task_key=None, endpoint_url=None, ssl=True
     ):
         self.shutdown_flag = threading.Event()
         self.token = token
-        self.model_key = model_key
+        self.task_key = task_key
         self.sender = Sender(endpoint_url, ssl, self.shutdown_flag)
         self.hb = None
         self._run = None
@@ -48,6 +49,7 @@ class Arcee:
         self._name = None
         self._hyperparams = dict()
         self._dataset = None
+        self._model = None
 
     @property
     def run(self):
@@ -101,16 +103,34 @@ class Arcee:
             error()
         return exc_type is None
 
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        self._model = value
+
 
 def init(
-    token, model_key, run_name=None, endpoint_url=None, ssl=True, period=1
+    token, task_key=None, run_name=None, endpoint_url=None, ssl=True, period=1,
+        model_key=None
 ):
+    if model_key:
+        warnings.warn(
+            "`model_key` parameter is deprecated and will be removed in the "
+            "future releases, consider using `task_key` instead",
+            UserWarning
+        )
+    if not task_key or model_key:
+        raise TypeError('`task_key` is not provided')
     acquire_console()
-    arcee = Arcee(token, model_key, endpoint_url, ssl)
+    arcee = Arcee(token, task_key or model_key, endpoint_url, ssl)
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
     )
-    run_id = asyncio.run(arcee.sender.get_run_id(model_key, token, name))["id"]
+    run_id = asyncio.run(arcee.sender.get_run_id(
+        task_key or model_key, token, name))["id"]
     arcee.run = run_id
     arcee.name = name
     arcee.hb = Job(
@@ -122,7 +142,7 @@ def init(
     asyncio.run(
         arcee.sender.send_stats(
             arcee.token,
-            {"project": arcee.model_key, "run": arcee.run, "data": {}},
+            {"project": arcee.task_key, "run": arcee.run, "data": {}},
         )
     )
     return arcee
@@ -163,7 +183,7 @@ def dataset(path):
     if arcee.dataset is None:
         arcee.dataset = path
         asyncio.run(arcee.sender.register_dataset(
-            arcee.run, arcee.name, arcee.model_key, path, arcee.token))
+            arcee.run, arcee.name, arcee.task_key, path, arcee.token))
 
 
 def finish():
@@ -222,6 +242,29 @@ def send(data):
     asyncio.run(
         arcee.sender.send_stats(
             arcee.token,
-            {"project": arcee.model_key, "run": arcee.run, "data": data},
+            {"project": arcee.task_key, "run": arcee.run, "data": data},
+        )
+    )
+
+
+def model(key, path=None):
+    arcee = Arcee()
+    arcee.model = asyncio.run(
+        arcee.sender.add_model(
+            arcee.token, key
+        )
+    )
+    asyncio.run(
+        arcee.sender.assign_model_run(
+            arcee.model, arcee.run, arcee.token, path=path
+        )
+    )
+
+
+def set_model_version(version):
+    arcee = Arcee()
+    asyncio.run(
+        arcee.sender.add_version(
+            arcee.model, arcee.run, arcee.token, version
         )
     )

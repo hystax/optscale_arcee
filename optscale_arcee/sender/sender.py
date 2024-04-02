@@ -78,8 +78,8 @@ class Sender:
                 return await response.json()
 
     @check_shutdown_flag_set
-    async def get_run_id(self, model_key, token, run_name):
-        uri = "%s/applications/%s/run" % (self.endpoint_url, model_key)
+    async def get_run_id(self, task_key, token, run_name):
+        uri = "%s/tasks/%s/run" % (self.endpoint_url, task_key)
         headers = {"x-api-key": token, "Content-Type": "application/json"}
         data = {
             "imports": await self._imports_data(),
@@ -136,7 +136,7 @@ class Sender:
         return await self.send_post_request(uri, headers, data)
 
     @check_shutdown_flag_set
-    async def register_dataset(self, run_id, run_name, model_key, path, token):
+    async def register_dataset(self, run_id, run_name, task_key, path, token):
         uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
         headers = {"x-api-key": token, "Content-Type": "application/json"}
 
@@ -144,7 +144,7 @@ class Sender:
             "path": path,
             "name": f"Dataset {int(datetime.utcnow().timestamp())}",
             "description": f"Discovered in training "
-                           f"{model_key} - {run_name}({run_id})"
+                           f"{task_key} - {run_name}({run_id})"
         }
         await self.send_post_request(uri, headers, data)
 
@@ -162,3 +162,25 @@ class Sender:
 
         data = await self._output()
         await self.send_post_request(uri, headers, data)
+
+    @check_shutdown_flag_set
+    async def add_model(self, token, key):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        model = await self.send_post_request(
+            self.endpoint_url + '/models', headers, {"key": key}
+        )
+        return model.get('_id')
+
+    @check_shutdown_flag_set
+    async def assign_model_run(self, model_id, run_id, token, path=None):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        body = {'path': path} if path else {}
+        await self.send_post_request(uri, headers, body)
+
+    @check_shutdown_flag_set
+    async def add_version(self, model_id, run_id, token, version):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        body = {'version': str(version)}
+        await self.send_patch_request(uri, headers, body)
