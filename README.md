@@ -88,3 +88,14 @@ To set custom model version, use the set_model_version method with the following
 ```
 arcee.set_model_version("1.2.3-release")
 ```
+
+To set model version alias, use the set_model_version_alias method with the following parameter:
+- alias (str): alias name
+```
+arcee.set_model_version_alias("winner")
+```
+
+To add tags to model version (key, value):
+```
+arcee.set_model_version_tag("env", "staging demo")
+```

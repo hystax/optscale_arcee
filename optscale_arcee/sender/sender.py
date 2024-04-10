@@ -179,8 +179,31 @@ class Sender:
         await self.send_post_request(uri, headers, body)
 
     @check_shutdown_flag_set
-    async def add_version(self, model_id, run_id, token, version):
+    async def patch_model_version(self, model_id, run_id, token, params):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
         uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        await self.send_patch_request(uri, headers, params)
+
+    @check_shutdown_flag_set
+    async def get_model_version(self, model_id, run_id, token):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        return await self.send_get_request(uri, headers)
+
+    async def add_version(self, model_id, run_id, token, version):
         body = {'version': str(version)}
-        await self.send_patch_request(uri, headers, body)
+        await self.patch_model_version(model_id, run_id, token, body)
+
+    async def add_version_alias(self, model_id, run_id, token, alias):
+        model_version = await self.get_model_version(model_id, run_id, token)
+        aliases = model_version.get('aliases', [])
+        aliases.append(str(alias))
+        body = {'aliases': aliases}
+        await self.patch_model_version(model_id, run_id, token, body)
+
+    async def add_version_tag(self, model_id, run_id, token, tags):
+        model_version = await self.get_model_version(model_id, run_id, token)
+        version_tags = model_version.get('tags', {})
+        version_tags.update(tags)
+        body = {'tags': version_tags}
+        await self.patch_model_version(model_id, run_id, token, body)

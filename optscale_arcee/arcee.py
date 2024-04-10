@@ -268,3 +268,22 @@ def set_model_version(version):
             arcee.model, arcee.run, arcee.token, version
         )
     )
+
+
+def set_model_version_alias(alias):
+    arcee = Arcee()
+    asyncio.run(
+        arcee.sender.add_version_alias(
+            arcee.model, arcee.run, arcee.token, alias
+        )
+    )
+
+
+def set_model_version_tag(key, value):
+    arcee = Arcee()
+    tags = {key: value}
+    asyncio.run(
+        arcee.sender.add_version_tag(
+            arcee.model, arcee.run, arcee.token, tags
+        )
+    )
