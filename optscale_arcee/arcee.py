@@ -137,8 +137,9 @@ class Arcee:
 
     @model_version_aliases.setter
     def model_version_aliases(self, value):
-        if value not in self._model_version_aliases:
-            self._model_version_aliases.append(value)
+        aliases = set(self._model_version_aliases)
+        aliases.add(value)
+        self._model_version_aliases = list(aliases)
 
 
 def init(
