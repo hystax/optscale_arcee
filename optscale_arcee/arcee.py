@@ -50,6 +50,9 @@ class Arcee:
         self._hyperparams = dict()
         self._dataset = None
         self._model = None
+        self._model_version = None
+        self._model_version_tags = dict()
+        self._model_version_aliases = list()
 
     @property
     def run(self):
@@ -110,6 +113,31 @@ class Arcee:
     @model.setter
     def model(self, value):
         self._model = value
+
+    @property
+    def model_version(self):
+        return self._model_version
+
+    @model_version.setter
+    def model_version(self, value):
+        self._model_version = value
+
+    @property
+    def model_version_tags(self):
+        return self._model_version_tags
+
+    @model_version_tags.setter
+    def model_version_tags(self, value):
+        k, v = value
+        self._model_version_tags.update({k: v})
+
+    @property
+    def model_version_aliases(self):
+        return self._model_version_aliases
+
+    @model_version_aliases.setter
+    def model_version_aliases(self, value):
+        self._model_version_aliases.append(value)
 
 
 def init(
@@ -261,7 +289,7 @@ def model(key, path=None):
     )
 
 
-def set_model_version(version):
+def model_version(version):
     arcee = Arcee()
     asyncio.run(
         arcee.sender.add_version(
@@ -270,20 +298,21 @@ def set_model_version(version):
     )
 
 
-def set_model_version_alias(alias):
+def model_version_alias(alias):
     arcee = Arcee()
+    arcee.model_version_aliases = alias
     asyncio.run(
-        arcee.sender.add_version_alias(
-            arcee.model, arcee.run, arcee.token, alias
+        arcee.sender.add_version_aliases(
+            arcee.model, arcee.run, arcee.token, arcee.model_version_aliases
         )
     )
 
 
-def set_model_version_tag(key, value):
+def model_version_tag(key, value):
     arcee = Arcee()
-    tags = {key: value}
+    arcee.model_version_tags = (key, value)
     asyncio.run(
-        arcee.sender.add_version_tag(
-            arcee.model, arcee.run, arcee.token, tags
+        arcee.sender.add_version_tags(
+            arcee.model, arcee.run, arcee.token, arcee.model_version_tags
         )
     )
