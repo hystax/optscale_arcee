@@ -172,26 +172,26 @@ class Sender:
         return model.get('_id')
 
     @check_shutdown_flag_set
-    async def assign_model_run(self, model_id, run_id, token, path=None):
+    async def assign_model_run(self, run_id, model_id, token, path=None):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
-        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        uri = f'{self.endpoint_url}/runs/{run_id}/models/{model_id}/version'
         body = {'path': path} if path else {}
         await self.send_post_request(uri, headers, body)
 
     @check_shutdown_flag_set
-    async def patch_model_version(self, model_id, run_id, token, params):
+    async def patch_model_version(self, run_id, model_id, token, params):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
-        uri = f'{self.endpoint_url}/models/{model_id}/runs/{run_id}'
+        uri = f'{self.endpoint_url}/runs/{run_id}/models/{model_id}/version'
         await self.send_patch_request(uri, headers, params)
 
-    async def add_version(self, model_id, run_id, token, version):
+    async def add_version(self, run_id, model_id, token, version):
         body = {'version': str(version)}
-        await self.patch_model_version(model_id, run_id, token, body)
+        await self.patch_model_version(run_id, model_id, token, body)
 
-    async def add_version_aliases(self, model_id, run_id, token, aliases):
+    async def add_version_aliases(self, run_id, model_id, token, aliases):
         body = {'aliases': aliases}
-        await self.patch_model_version(model_id, run_id, token, body)
+        await self.patch_model_version(run_id, model_id, token, body)
 
-    async def add_version_tags(self, model_id, run_id, token, tags):
+    async def add_version_tags(self, run_id, model_id, token, tags):
         body = {'tags': tags}
-        await self.patch_model_version(model_id, run_id, token, body)
+        await self.patch_model_version(run_id, model_id, token, body)

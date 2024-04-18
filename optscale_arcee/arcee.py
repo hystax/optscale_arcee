@@ -286,7 +286,7 @@ def model(key, path=None):
     )
     asyncio.run(
         arcee.sender.assign_model_run(
-            arcee.model, arcee.run, arcee.token, path=path
+            arcee.run, arcee.model, arcee.token, path=path
         )
     )
 
@@ -295,7 +295,7 @@ def model_version(version):
     arcee = Arcee()
     asyncio.run(
         arcee.sender.add_version(
-            arcee.model, arcee.run, arcee.token, version
+            arcee.run, arcee.model, arcee.token, version
         )
     )
 
@@ -305,7 +305,7 @@ def model_version_alias(alias):
     arcee.model_version_aliases = alias
     asyncio.run(
         arcee.sender.add_version_aliases(
-            arcee.model, arcee.run, arcee.token, arcee.model_version_aliases
+            arcee.run, arcee.model, arcee.token, arcee.model_version_aliases
         )
     )
 
@@ -315,6 +315,6 @@ def model_version_tag(key, value):
     arcee.model_version_tags = (key, value)
     asyncio.run(
         arcee.sender.add_version_tags(
-            arcee.model, arcee.run, arcee.token, arcee.model_version_tags
+            arcee.run, arcee.model, arcee.token, arcee.model_version_tags
         )
     )
