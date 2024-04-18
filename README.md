@@ -83,8 +83,19 @@ To create a model, use the model method with the following parameters:
 arcee.model("my_model", "/home/user/my_model")
 ```
 
-To set custom model version, use the set_model_version method with the following parameter:
+To set a custom model version, use the model_version method with the following parameter:
 - version (str): version name
 ```
-arcee.set_model_version("1.2.3-release")
+arcee.model_version("1.2.3-release")
+```
+
+To set a model version alias, use the model_version_alias method with the following parameter:
+- alias (str): alias name
+```
+arcee.model_version_alias("winner")
+```
+
+To add tags to model version (key, value):
+```
+arcee.model_version_tag("env", "staging demo")
 ```
