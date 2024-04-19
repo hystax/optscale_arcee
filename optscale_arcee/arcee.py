@@ -285,7 +285,7 @@ def model(key, path=None):
         )
     )
     asyncio.run(
-        arcee.sender.assign_model_run(
+        arcee.sender.create_model_version(
             arcee.run, arcee.model, arcee.token, path=path
         )
     )

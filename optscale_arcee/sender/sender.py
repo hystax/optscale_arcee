@@ -172,7 +172,7 @@ class Sender:
         return model.get('_id')
 
     @check_shutdown_flag_set
-    async def assign_model_run(self, run_id, model_id, token, path=None):
+    async def create_model_version(self, run_id, model_id, token, path=None):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
         uri = f'{self.endpoint_url}/runs/{run_id}/models/{model_id}/version'
         body = {'path': path} if path else {}
