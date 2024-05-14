@@ -1,5 +1,4 @@
 import asyncio
-import warnings
 import time
 import threading
 
