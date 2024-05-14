@@ -143,24 +143,14 @@ class Arcee:
 
 
 def init(
-    token, task_key=None, run_name=None, endpoint_url=None, ssl=True, period=1,
-        model_key=None
+    token, task_key, run_name=None, endpoint_url=None, ssl=True, period=1
 ):
-    if model_key:
-        warnings.warn(
-            "`model_key` parameter is deprecated and will be removed in the "
-            "future releases, consider using `task_key` instead",
-            UserWarning
-        )
-    if not task_key or model_key:
-        raise TypeError('`task_key` is not provided')
     acquire_console()
-    arcee = Arcee(token, task_key or model_key, endpoint_url, ssl)
+    arcee = Arcee(token, task_key, endpoint_url, ssl)
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
     )
-    run_id = asyncio.run(arcee.sender.get_run_id(
-        task_key or model_key, token, name))["id"]
+    run_id = asyncio.run(arcee.sender.get_run_id(task_key, token, name))["id"]
     arcee.run = run_id
     arcee.name = name
     arcee.hb = Job(

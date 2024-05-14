@@ -9,6 +9,8 @@ import optscale_arcee as arcee
 # init arcee
 arcee.init(token="test", task_key="linear_regression")
 
+arcee.model("linear_regression")
+
 arcee.tag("project", "regression")
 
 arcee.milestone("preparing data")
@@ -101,4 +103,5 @@ for step in range(1, training_steps + 1):
             % (step, loss, W.numpy(), b.numpy())
         )
 arcee.milestone("calc done")
+arcee.model_version_alias("champion")
 arcee.finish()
