@@ -75,6 +75,7 @@ def test(dataloader, model, loss_fn):
 if __name__ == "__main__":
     # init arcee
     with arcee.init(token="test", task_key="torchvision"):
+        arcee.model("torchvision", path=filename)
         arcee.tag("project", "torchvision demo")
 
         # Download training data
@@ -116,6 +117,7 @@ if __name__ == "__main__":
         optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
         epochs = 5
+        arcee.model_version_tag("epochs", epochs)
         arcee.stage("Calculation")
         for e in range(epochs):
             epoch = e + 1
