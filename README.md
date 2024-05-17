@@ -1,7 +1,7 @@
 # Arcee
 ## *The OptScale ML profiling tool by Hystax*
 
-Arcee is a tool that hepls you to integrate ML tasks with [OptScale](https://my.optscale.com/).
+Arcee is a tool that helps you to integrate ML tasks with [OptScale](https://my.optscale.com/).
 This tool can automatically collect executor metadata from cloud and process stats.
 
 ## Installation
