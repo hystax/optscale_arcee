@@ -129,4 +129,5 @@ if __name__ == "__main__":
         print("+Task Done!")
         arcee.milestone("Saving model")
         torch.save(model.state_dict(), filename)
+        arcee.artifact(filename, 'Model state', tags={'epochs': epochs})
         print(f"+Saved PyTorch Model State to {filename}")

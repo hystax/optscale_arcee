@@ -52,6 +52,7 @@ class Arcee:
         self._model_version = None
         self._model_version_tags = dict()
         self._model_version_aliases = list()
+        self._artifacts = dict()
 
     @property
     def run(self):
@@ -139,6 +140,18 @@ class Arcee:
         aliases = set(self._model_version_aliases)
         aliases.add(value)
         self._model_version_aliases = list(aliases)
+
+    @property
+    def artifacts(self):
+        return self._artifacts
+
+    @artifacts.setter
+    def artifacts(self, value):
+        id_, path, tags = value
+        self._artifacts[path] = {
+            'id': id_,
+            'tags': tags
+        }
 
 
 def init(
@@ -305,5 +318,23 @@ def model_version_tag(key, value):
     asyncio.run(
         arcee.sender.add_version_tags(
             arcee.run, arcee.model, arcee.token, arcee.model_version_tags
+        )
+    )
+
+
+def artifact(path, name=None, description=None, tags=None):
+    arcee = Arcee()
+    arcee.artifacts = asyncio.run(
+        arcee.sender.add_artifact(
+            arcee.token, arcee.run, path, name, description, tags
+        )
+    )
+
+
+def artifact_tag(path, key, value):
+    arcee = Arcee()
+    arcee.artifacts = asyncio.run(
+        arcee.sender.add_artifact_tags(
+            arcee.token, arcee.artifacts, path, key, value
         )
     )

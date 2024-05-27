@@ -195,3 +195,34 @@ class Sender:
     async def add_version_tags(self, run_id, model_id, token, tags):
         body = {'tags': tags}
         await self.patch_model_version(run_id, model_id, token, body)
+
+    @check_shutdown_flag_set
+    async def add_artifact(self, token, run, path, name=None, description=None,
+                           tags=None):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        body = {
+            'run_id': run,
+            'path': path
+        }
+        if name:
+            body['name'] = name
+        if description:
+            body['description'] = description
+        if tags:
+            body['tags'] = tags
+        artifact = await self.send_post_request(
+            self.endpoint_url + '/artifacts', headers, body
+        )
+        return artifact.get('_id'), path, tags or {}
+
+    async def add_artifact_tags(self, token, artifacts, path, key, value):
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        artifact = artifacts.get(path)
+        if not artifact:
+            raise ValueError("Artifact doesn't exists."
+                             "Use arcee.artifact() to create one")
+        artifact['tags'][key] = value
+        body = {'tags': artifact['tags']}
+        uri = f'{self.endpoint_url}/artifacts/{artifact["id"]}'
+        await self.send_patch_request(uri, headers, body)
+        return artifact["id"], path, artifact['tags']
