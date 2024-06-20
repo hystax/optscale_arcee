@@ -101,7 +101,7 @@ arcee.model_version_tag("env", "staging demo")
 ```
 
 ## Artifacts
-To create an artifact , use the artifact method with the following parameters:
+To create an artifact, use the artifact method with the following parameters:
 - path (str): the path of the run artifact
 - name (str): the name of the artifact
 - description (str): the description of the artifact
