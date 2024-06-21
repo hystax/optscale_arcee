@@ -100,8 +100,8 @@ To add tags to model version (key, value):
 arcee.model_version_tag("env", "staging demo")
 ```
 
-## Artifact
-To create an artifact , use the artifact method with the following parameters:
+## Artifacts
+To create an artifact, use the artifact method with the following parameters:
 - path (str): the path of the run artifact
 - name (str): the name of the artifact
 - description (str): the description of the artifact
