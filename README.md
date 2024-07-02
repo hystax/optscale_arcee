@@ -78,7 +78,7 @@ arcee.dataset("dataset_path")
 ## Models
 To create a model, use the model method with the following parameters:
 - key (str): the unique key of the model
-- path (str): the path of the run artifacts
+- path (str): the path of the run model
 ```
 arcee.model("my_model", "/home/user/my_model")
 ```
@@ -98,4 +98,23 @@ arcee.model_version_alias("winner")
 To add tags to model version (key, value):
 ```
 arcee.model_version_tag("env", "staging demo")
+```
+
+## Artifacts
+To create an artifact, use the artifact method with the following parameters:
+- path (str): the path of the run artifact
+- name (str): the name of the artifact
+- description (str): the description of the artifact
+- tags (str): the tags of the artifact in format {"key": "value"}
+```
+arcee.artifact("https://s3/ml-bucket/artifacts/AccuracyChart.png",
+               name="Accuracy line chart",
+               description="The dependence of accuracy on the time",
+               tags={"env": "staging"})
+```
+
+To add tags to existing artifact (path, key, value):
+```
+arcee.artifact_tag("https://s3/ml-bucket/artifacts/AccuracyChart.png",
+                   "env", "staging demo")
 ```
