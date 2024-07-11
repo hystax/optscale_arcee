@@ -133,6 +133,10 @@ class Sender:
         data.update({"proc_stats": proc})
         return await self.send_post_request(uri, headers, data)
 
+    @staticmethod
+    def generate_description(task_key, run_name, run_id):
+        return f"Discovered in training {task_key} - {run_name}({run_id})"
+
     @check_shutdown_flag_set
     async def register_dataset(self, token, run_id, run_name, task_key, path,
                                dataset_name=None, description=None,
@@ -143,8 +147,7 @@ class Sender:
         if dataset_name is None:
             dataset_name = path
         if not description:
-            description = f"Discovered in training " \
-                          f"{task_key} - {run_name}({run_id})"
+            description = self.generate_description(task_key, run_name, run_id)
         if not isinstance(labels, list):
             labels = [labels]
 
@@ -215,8 +218,7 @@ class Sender:
         if name:
             body['name'] = name
         if not description:
-            description = f"Discovered in training " \
-                          f"{task_key} - {run_name}({run_id})"
+            description = self.generate_description(task_key, run_name, run_id)
         body['description'] = description
         if tags:
             body['tags'] = tags
