@@ -71,8 +71,14 @@ arcee.hyperparam("epochs", 5)
 ## Logging datasets
 To log a dataset, use the dataset method with the following parameter:
 - path (str): the path of the dataset.
+- name (str): the name of the dataset.
+- description (str): the description of the dataset.
+- labels (list): the list of labels of the dataset.
 ```
-arcee.dataset("dataset_path")
+arcee.dataset("https://s3/ml-bucket/datasets/training_dataset.csv",
+              name="Training dataset",
+              description="Training dataset (100k rows)",
+              labels=["training", "100k"])
 ```
 
 ## Models

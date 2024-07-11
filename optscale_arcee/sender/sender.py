@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import aiohttp
 import threading
 
@@ -136,15 +134,25 @@ class Sender:
         return await self.send_post_request(uri, headers, data)
 
     @check_shutdown_flag_set
-    async def register_dataset(self, run_id, run_name, task_key, path, token):
+    async def register_dataset(self, token, run_id, run_name, task_key, path,
+                               dataset_name=None, description=None,
+                               labels=None):
         uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
         headers = {"x-api-key": token, "Content-Type": "application/json"}
 
+        if dataset_name is None:
+            dataset_name = path
+        if not description:
+            description = f"Discovered in training " \
+                          f"{task_key} - {run_name}({run_id})"
+        if not isinstance(labels, list):
+            labels = [labels]
+
         data = {
             "path": path,
-            "name": f"Dataset {int(datetime.utcnow().timestamp())}",
-            "description": f"Discovered in training "
-                           f"{task_key} - {run_name}({run_id})"
+            "name": dataset_name,
+            "description": description,
+            "labels": labels
         }
         await self.send_post_request(uri, headers, data)
 
@@ -197,17 +205,19 @@ class Sender:
         await self.patch_model_version(run_id, model_id, token, body)
 
     @check_shutdown_flag_set
-    async def add_artifact(self, token, run, path, name=None, description=None,
-                           tags=None):
+    async def add_artifact(self, token, run_id, run_name, task_key, path,
+                           name=None, description=None, tags=None):
         headers = {"x-api-key": token, "Content-Type": "application/json"}
         body = {
-            'run_id': run,
+            'run_id': run_id,
             'path': path
         }
         if name:
             body['name'] = name
-        if description:
-            body['description'] = description
+        if not description:
+            description = f"Discovered in training " \
+                          f"{task_key} - {run_name}({run_id})"
+        body['description'] = description
         if tags:
             body['tags'] = tags
         artifact = await self.send_post_request(
