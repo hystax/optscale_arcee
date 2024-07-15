@@ -148,14 +148,14 @@ class Sender:
             dataset_name = path
         if not description:
             description = self.generate_description(task_key, run_name, run_id)
-        if not isinstance(labels, list):
+        if labels is not None and not isinstance(labels, list):
             labels = [labels]
 
         data = {
             "path": path,
             "name": dataset_name,
             "description": description,
-            "labels": labels
+            "labels": labels or []
         }
         await self.send_post_request(uri, headers, data)
 
