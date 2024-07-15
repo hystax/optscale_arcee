@@ -56,11 +56,11 @@ with arcee.init(token, task_key, period=5):
 To send metrics, use the send method with the following metric:
 - data (dict, required): a dictionary of metric names and their respective values (note that metric data values should be numeric).
 ```sh
-arcee.send({ "metric_key_1": value_1, "metric_key_2": value_2 })
+arcee.send({"metric_key_1": value_1, "metric_key_2": value_2})
 ```
 example:
 ```sh
-arcee.send({ "accuracy": 71.44, "loss": 0.37 })
+arcee.send({"accuracy": 71.44, "loss": 0.37})
 ```
 
 ## Adding hyperparameters
