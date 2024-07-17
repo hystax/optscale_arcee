@@ -53,7 +53,7 @@ with arcee.init(token, task_key, period=5):
 ```
 
 ## Sending metrics
-To send metrics, use the send method with the following metric:
+To send metrics, use the send method with the following parameter:
 - data (dict, required): a dictionary of metric names and their respective values (note that metric data values should be numeric).
 ```sh
 arcee.send({"metric_key_1": value_1, "metric_key_2": value_2})
@@ -76,7 +76,7 @@ arcee.hyperparam("EPOCHS", 100)
 ```
 
 ## Tagging task run
-To tag a run, use the tag method with the following metrics:
+To tag a run, use the tag method with the following parameters:
 - key (str, required): the tag name.
 - value (str | number, required): the tag value.
 ```sh
@@ -88,7 +88,7 @@ arcee.tag("Algorithm", "Linear Learn Algorithm")
 ```
 
 ## Adding milestone
-To add a milestone, use the milestone method with the following metric:
+To add a milestone, use the milestone method with the following parameter:
 - name (str, required): the name of the milestone.
 ```sh
 arcee.milestone(name)
@@ -99,7 +99,7 @@ arcee.milestone("Download training data")
 ```
 
 ## Adding stage
-To add a stage, use the stage method with the following metric:
+To add a stage, use the stage method with the following parameter:
 - name (str, required): the name of the stage.
 ```sh
 arcee.stage(name)
