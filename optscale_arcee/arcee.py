@@ -210,12 +210,14 @@ def stage(name):
     asyncio.run(arcee.sender.create_stage(arcee.run, arcee.token, name))
 
 
-def dataset(path):
+def dataset(path, name=None, description=None, labels=None):
     arcee = Arcee()
     if arcee.dataset is None:
         arcee.dataset = path
         asyncio.run(arcee.sender.register_dataset(
-            arcee.run, arcee.name, arcee.task_key, path, arcee.token))
+            arcee.token, arcee.run, arcee.name, arcee.task_key, path, name,
+            description, labels
+        ))
 
 
 def finish():
@@ -326,7 +328,8 @@ def artifact(path, name=None, description=None, tags=None):
     arcee = Arcee()
     arcee.artifacts = asyncio.run(
         arcee.sender.add_artifact(
-            arcee.token, arcee.run, path, name, description, tags
+            arcee.token, arcee.run, arcee.name, arcee.task_key, path, name,
+            description, tags
         )
     )
 
