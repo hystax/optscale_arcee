@@ -5,10 +5,9 @@ Arcee is a tool that helps you to integrate ML tasks with [OptScale](https://my.
 This tool can automatically collect executor metadata from cloud and process stats.
 
 ## Installation
-Arcee requires python 3.7+ to run.
 To install the optscale_arcee package, use pip:
 ```sh
-pip install optscale-arcee
+pip install optscale_arcee
 ```
 
 ## Import
@@ -18,15 +17,20 @@ import optscale_arcee as arcee
 ```
 
 ## Initialization
-To initialize the arcee collector you need to provide a profiling token and a task key for which you want to collect data.
+To initialize the arcee collector, you need to provide a profiling token and a task key for which you want to collect data.
+
 To initialize the collector using a context manager, use the following code snippet:
 ```sh
+<<<<<<< HEAD
 with arcee.init(token, task_key):
     # some code
 ```
 Example:
 ```sh
 with arcee.init("00000000-0000-0000-0000-000000000000", "linear_regression"):
+=======
+with arcee.init("token", "task_key"):
+>>>>>>> OS-6478. fixes
     # some code
 ```
 This method automatically handles error catching and terminates arcee execution.
@@ -34,21 +38,21 @@ This method automatically handles error catching and terminates arcee execution.
 Alternatively, to get more control over error catching and execution finishing, you can initialize the collector using a corresponding method.
 Note that this method will require you to manually handle errors or terminate arcee execution using the error and finish methods.
 ```sh
-arcee.init(token, task_key)
+arcee.init("token", "task_key")
 # some code
 arcee.finish()
 # or in case of error
 arcee.error()
 ```
 
-To use custom endpoint and enable/disable ssl checks (enable self-signed ssl certificates support):
+To use custom endpoint and enable/disable SSL checks (enable self-signed SSL certificates support):
 ```sh
-with arcee.init(token, task_key, endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
+with arcee.init("token", "task_key", endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
     # some code
 ```
-Arcee daemon process periodically sends hardware and process data. Default heartbeat period is 1sec. However, arcee can be initialized with custom period:
+Arcee daemon process periodically sends hardware and process data. The default heartbeat period is 1 second. However, arcee can be initialized with custom period:
 ```sh
-with arcee.init(token, task_key, period=5):
+with arcee.init("5b9d9aa9-b0ac-4a77-85a8-e8e2f1a70c92", "task_key", period=5):
     # some code
 ```
 
@@ -56,11 +60,11 @@ with arcee.init(token, task_key, period=5):
 To send metrics, use the send method with the following parameter:
 - data (dict, required): a dictionary of metric names and their respective values (note that metric data values should be numeric).
 ```sh
-arcee.send({"metric_key_1": value_1, "metric_key_2": value_2})
+arcee.send({ "metric_key_1": value_1, "metric_key_2": value_2 })
 ```
-example:
+Example:
 ```sh
-arcee.send({"accuracy": 71.44, "loss": 0.37})
+arcee.send({ "accuracy": 71.44, "loss": 0.37 })
 ```
 
 ## Adding hyperparameters
@@ -70,41 +74,41 @@ To add hyperparameters, use the hyperparam method with the following parameters:
 ```sh
 arcee.hyperparam(key, value)
 ```
-example:
+Example:
 ```sh
 arcee.hyperparam("EPOCHS", 100)
 ```
 
 ## Tagging task run
-To tag a run, use the tag method with the following parameters:
+To tag a run, use the `tag` method with the following parameters:
 - key (str, required): the tag name.
 - value (str | number, required): the tag value.
 ```sh
 arcee.tag(key, value)
 ```
-example:
+Example:
 ```sh
 arcee.tag("Algorithm", "Linear Learn Algorithm")
 ```
 
 ## Adding milestone
 To add a milestone, use the milestone method with the following parameter:
-- name (str, required): the name of the milestone.
+- name (str, required): the milestone name.
 ```sh
 arcee.milestone(name)
 ```
-example:
+Example:
 ```sh
 arcee.milestone("Download training data")
 ```
 
 ## Adding stage
 To add a stage, use the stage method with the following parameter:
-- name (str, required): the name of the stage.
+- name (str, required): the stage name.
 ```sh
 arcee.stage(name)
 ```
-example:
+Example:
 ```sh
 arcee.stage("preparing")
 ```
@@ -119,7 +123,11 @@ To log a dataset, use the dataset method with the following parameter:
 arcee.dataset(path, name, description, labels)
 ```
 Example:
+```sh
+arcee.dataset(path, name, description, labels)
 ```
+Example:
+```sh
 arcee.dataset("https://s3/ml-bucket/datasets/training_dataset.csv",
               name="Training dataset",
               description="Training dataset (100k rows)",
@@ -128,60 +136,64 @@ arcee.dataset("https://s3/ml-bucket/datasets/training_dataset.csv",
 
 ## Creating models
 To create a model, use the model method with the following parameters:
-- key (str, required): the unique key of the model
+- key (str, required): the unique model key.
 - path (str, optional): the path of the run model
 ```
 arcee.model(key, path)
 ```
 example:
 ```
+arcee.model(key, path)
+```
+Example:
+```sh
 arcee.model("my_model", "/home/user/my_model")
 ```
 
 ## Setting model version
-To set custom model version, use the model_version method with the following parameter:
-- version (str, required): version name
+To set a custom model version, use the model_version method with the following parameter:
+- version (str, required): the version name.
 ```sh
 arcee.model_version(version)
 ```
-example:
+Example:
 ```sh
 arcee.model_version("1.2.3-release")
 ```
 
 ## Setting model version alias
-To set model version alias, use the model_version_alias method with the following parameter:
-- alias (str, required): alias name
+To set a model version alias, use the model_version_alias method with the following parameter:
+- alias (str, required): the alias name.
 ```sh
 arcee.model_version_alias(alias)
 ```
-example:
+Example:
 ```sh
 arcee.model_version_alias("winner")
 ```
 
 ## Setting model version tag
 To add tags to a model version, use the model_version_tag method with the following parameters:
-- key (str, required): tag name
-- value (str, required): tag value
+- key (str, required): the tag name.
+- value (str, required): the tag value.
 ```sh
 arcee.model_version_tag(key, value)
 ```
-example:
+Example:
 ```sh
 arcee.model_version_tag("env", "staging demo")
 ```
 
 ## Creating artifacts
 To create an artifact, use the artifact method with the following parameters:
-- path (str, required): the path of the run artifact
-- name (str, optional): the name of the artifact
-- description (str, optional): the description of the artifact
-- tags (dict, optional): the tags of the artifact in format {"key": "value"}
+- path (str, required): the run artifact path.
+- name (str, optional): the artifact name.
+- description (str, optional): the artifact description.
+- tags (dict, optional): the artifact tags.
 ```sh
 arcee.artifact(path, name, description, tags)
 ```
-example:
+Example:
 ```sh
 arcee.artifact("https://s3/ml-bucket/artifacts/AccuracyChart.png",
                name="Accuracy line chart",
@@ -190,27 +202,27 @@ arcee.artifact("https://s3/ml-bucket/artifacts/AccuracyChart.png",
 ```
 
 ## Setting artifact tag
-To add tag to an artifact, use the artifact_tag method with the following parameters:
-- path (str, required): the path of the run artifact
-- key (str, required): tag name
-- value (str, required): tag value
+To add a tag to an artifact, use the artifact_tag method with the following parameters:
+- path (str, required): the run artifact path.
+- key (str, required): the tag name.
+- value (str, required): the tag value.
 ```sh
 arcee.artifact_tag(path, key, value)
 ```
-example:
+Example:
 ```sh
-arcee.artifact_tag("https://s3/ml-bucket/artifacts/AccuracyChart.png",
+arcee.artifact_tag("https://s3/ml-bucket/artifacts/AccuracyChart.png", 
                    "env", "staging demo")
 ```
 
 ## Finishing task run
-To finish a run, use the finish method.
+To finish a run, use the finish method:
 ```sh
 arcee.finish()
 ```
 
 ## Failing task run
-To fail a run, use the error method.
+To fail a run, use the error method:
 ```sh
 arcee.error()
 ```
