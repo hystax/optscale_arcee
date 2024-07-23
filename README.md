@@ -6,7 +6,7 @@ This tool can automatically collect executor metadata from cloud and process sta
 
 ## Installation
 Arcee requires python 3.7+ to run.
-To install the optscale_arcee package, use pip:
+To install the `optscale_arcee` package, use pip:
 ```sh
 pip install optscale-arcee
 ```
@@ -46,7 +46,7 @@ To use custom endpoint and enable/disable SSL checks (enable self-signed SSL cer
 with arcee.init(token, task_key, endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
     # some code
 ```
-Arcee daemon process periodically sends hardware and process data. Default heartbeat period is 1sec. However, arcee can be initialized with custom period:
+Arcee daemon process periodically sends hardware and process data. Default heartbeat period is 1 second. However, arcee can be initialized with custom period:
 ```sh
 with arcee.init(token, task_key, period=5):
     # some code
@@ -99,7 +99,7 @@ arcee.milestone("Download training data")
 ```
 
 ## Adding stage
-To add a stage, use the `stage` method with the following metric:
+To add a stage, use the `stage` method with the following parameter:
 - name (str, required): the stage name.
 ```sh
 arcee.stage(name)
@@ -140,7 +140,7 @@ arcee.model("my_model", "/home/user/my_model")
 
 ## Setting model version
 To set a custom model version, use the `model_version` method with the following parameter:
-- version (str, required): version name
+- version (str, required): the version name.
 ```sh
 arcee.model_version(version)
 ```
@@ -151,7 +151,7 @@ arcee.model_version("1.2.3-release")
 
 ## Setting model version alias
 To set a model version alias, use the `model_version_alias` method with the following parameter:
-- alias (str, required): alias name
+- alias (str, required): the alias name.
 ```sh
 arcee.model_version_alias(alias)
 ```
@@ -162,8 +162,8 @@ arcee.model_version_alias("winner")
 
 ## Setting model version tag
 To add tags to a model version, use the `model_version_tag` method with the following parameters:
-- key (str, required): tag name
-- value (str, required): tag value
+- key (str, required): the tag name.
+- value (str, required): the tag value.
 ```sh
 arcee.model_version_tag(key, value)
 ```
