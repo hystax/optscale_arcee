@@ -2,17 +2,17 @@
 ## *The OptScale ML profiling tool by Hystax*
 
 Arcee is a tool that helps you to integrate ML tasks with [OptScale](https://my.optscale.com/).
-This tool can automatically collect executor metadata from cloud and process stats.
+This tool can automatically collect executor metadata from the cloud and process stats.
 
 ## Installation
-Arcee requires python 3.7+ to run.
+Arcee requires Python 3.7+ to run.
 To install the `optscale_arcee` package, use pip:
 ```sh
 pip install optscale-arcee
 ```
 
 ## Import
-Import the optscale_arcee module into your code as follows:
+Import the `optscale_arcee` module into your code as follows:
 ```sh
 import optscale_arcee as arcee
 ```
@@ -41,12 +41,12 @@ arcee.finish()
 arcee.error()
 ```
 
-To use custom endpoint and enable/disable SSL checks (enable self-signed SSL certificates support):
+To use a custom endpoint and enable/disable SSL checks (enable self-signed SSL certificates support):
 ```sh
 with arcee.init(token, task_key, endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
     # some code
 ```
-Arcee daemon process periodically sends hardware and process data. Default heartbeat period is 1 second. However, arcee can be initialized with custom period:
+Arcee daemon process periodically sends hardware and process data. The default heartbeat period is 1 second. However, arcee can be initialized with a custom period:
 ```sh
 with arcee.init(token, task_key, period=5):
     # some code
