@@ -96,6 +96,7 @@ class Platform:
                 return cls.match.get(data.rstrip(), PlatformType.unknown)
         except (OSError, IOError):
             pass
+        return PlatformType.unknown
 
     @classmethod
     async def sys_vendor(cls) -> PlatformType:
@@ -107,6 +108,7 @@ class Platform:
                 return cls.match.get(data.rstrip(), PlatformType.unknown)
         except (OSError, IOError):
             pass
+        return PlatformType.unknown
 
     @classmethod
     async def platform(cls) -> PlatformType:
@@ -124,11 +126,11 @@ class BaseCollector:
         url, headers=None, params=None, response="json"
     ) -> str:
         async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url, params=params) as response:
+            async with session.get(url, params=params) as resp:
                 if response == "json":
-                    resp = await response.json()
+                    resp = await resp.json()
                 else:
-                    resp = await response.text()
+                    resp = await resp.text()
                 return resp
 
 
@@ -142,7 +144,7 @@ class AwsCollector(BaseCollector):
 
     async def get_account_id(self):
         acc_info = await self.send_request(
-            self.base_url % "identity-credentials/ec2/info", response="json"
+            self.base_url % "identity-credentials/ec2/info", response="text"
         )
         return json.loads(acc_info).get("AccountId", "")
 
@@ -316,6 +318,84 @@ class AzureCollector(BaseCollector):
         return PlatformMeta(PlatformType.azure)
 
 
+class AlibabaCollector(BaseCollector):
+    base_url = "http://100.100.100.200/latest/meta-data/%s"
+
+    @staticmethod
+    async def send_request(
+        url, headers=None, params=None, response="json"
+    ) -> str:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url, params=params) as resp:
+                if resp.status == 404:
+                    resp = ""
+                else:
+                    resp = await resp.text()
+                return resp
+
+    async def get_instance_id(self):
+        return await self.send_request(
+            self.base_url % "instance-id", response="text"
+        )
+
+    async def get_account_id(self):
+        return await self.send_request(
+            self.base_url % "owner-account-id", response="text"
+        )
+
+    async def get_local_ip(self):
+        return await self.send_request(
+            self.base_url % "private-ipv4", response="text"
+        )
+
+    async def get_public_ip(self):
+        public_ip = await self.send_request(
+            self.base_url % "public-ipv4", response="text"
+        )
+        if not public_ip:
+            public_ip = await self.send_request(
+                self.base_url % "eipv4", response="text"
+            )
+        return public_ip
+
+    async def get_life_cycle(self):
+        instance_lc = InstanceLifeCycle.Unknown
+        lc_fut = await self.send_request(
+            self.base_url % "instance/spot/termination-time", response="text"
+        )
+        if lc_fut:
+            instance_lc = InstanceLifeCycle.Spot
+        return instance_lc
+
+    async def get_instance_type(self):
+        return await self.send_request(
+            self.base_url % "instance/instance-type", response="text"
+        )
+
+    async def get_az(self):
+        return await self.send_request(
+            self.base_url % "zone-id", response="text"
+        )
+
+    async def get_region(self):
+        return await self.send_request(
+            self.base_url % "region-id", response="text"
+        )
+
+    async def get_platform_meta(self):
+        return PlatformMeta(
+            PlatformType.ali,
+            await self.get_instance_id(),
+            await self.get_account_id(),
+            await self.get_local_ip(),
+            await self.get_public_ip(),
+            await self.get_life_cycle(),
+            await self.get_instance_type(),
+            await self.get_region(),
+            await self.get_az(),
+        )
+
+
 class UnknownCollector(BaseCollector):
     @staticmethod
     async def send_request(
@@ -332,6 +412,7 @@ class CollectorFactory:
     match = {
         PlatformType.azure: AzureCollector,
         PlatformType.aws: AwsCollector,
+        PlatformType.ali: AlibabaCollector
     }
 
     @classmethod
