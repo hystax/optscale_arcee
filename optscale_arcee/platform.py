@@ -19,7 +19,7 @@ def serialise(self) -> dict:
 
 
 class PlatformType(Enum):
-    ali = "ali"
+    alibaba = "alibaba"
     aws = "aws"
     azure = "azure"
     gcp = "gcp"
@@ -65,7 +65,7 @@ class Platform:
         "Amazon EC2": PlatformType.aws,
         "Google": PlatformType.gcp,
         "Microsoft Corporation": PlatformType.azure,
-        "Alibaba Cloud": PlatformType.ali,
+        "Alibaba Cloud": PlatformType.alibaba,
     }
 
     def __int__(self, *args, **kwargs):
@@ -123,7 +123,7 @@ class Platform:
 class BaseCollector:
     @staticmethod
     async def send_request(
-        url, headers=None, params=None, response="json"
+        url, headers=None, params=None, response="text"
     ) -> str:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url, params=params) as resp:
@@ -139,23 +139,23 @@ class AwsCollector(BaseCollector):
 
     async def get_instance_id(self):
         return await self.send_request(
-            self.base_url % "instance-id", response="text"
+            self.base_url % "instance-id"
         )
 
     async def get_account_id(self):
         acc_info = await self.send_request(
-            self.base_url % "identity-credentials/ec2/info", response="text"
+            self.base_url % "identity-credentials/ec2/info"
         )
         return json.loads(acc_info).get("AccountId", "")
 
     async def get_local_ip(self):
         return await self.send_request(
-            self.base_url % "local-ipv4", response="text"
+            self.base_url % "local-ipv4"
         )
 
     async def get_public_ip(self):
         return await self.send_request(
-            self.base_url % "public-ipv4", response="text"
+            self.base_url % "public-ipv4"
         )
 
     async def get_life_cycle(self):
@@ -164,23 +164,23 @@ class AwsCollector(BaseCollector):
             "on-demand": InstanceLifeCycle.OnDemand,
         }
         lc_fut = await self.send_request(
-            self.base_url % "instance-life-cycle", response="text"
+            self.base_url % "instance-life-cycle"
         )
         return match.get(lc_fut.lower(), InstanceLifeCycle.Unknown)
 
     async def get_instance_type(self):
         return await self.send_request(
-            self.base_url % "instance-type", response="text"
+            self.base_url % "instance-type"
         )
 
     async def get_az(self):
         return await self.send_request(
-            self.base_url % "placement/availability-zone", response="text"
+            self.base_url % "placement/availability-zone"
         )
 
     async def get_region(self):
         return await self.send_request(
-            self.base_url % "placement/region", response="text"
+            self.base_url % "placement/region"
         )
 
     async def get_platform_meta(self):
@@ -204,30 +204,26 @@ class GcpCollector(BaseCollector):
     async def get_instance_id(self):
         return await self.send_request(
             self.base_url % "instance/id",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
 
     async def get_account_id(self):
         return await self.send_request(
             self.base_url % "project/project-id",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
 
     async def get_local_ip(self):
         return await self.send_request(
             self.base_url % "instance/network-interfaces/0/ip",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
 
     async def get_public_ip(self):
         return await self.send_request(
             self.base_url
             % "instance/network-interfaces/0/access-configs/0/external-ip",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
 
     async def get_life_cycle(self):
@@ -237,24 +233,21 @@ class GcpCollector(BaseCollector):
         }
         lc_fut = await self.send_request(
             self.base_url % "instance/scheduling/preemptible",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
         return match.get(lc_fut.lower(), InstanceLifeCycle.Unknown)
 
     async def get_instance_type(self):
         it_fut = await self.send_request(
             self.base_url % "instance/machine-type",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
         return it_fut.split("/")[-1]
 
     async def get_az(self):
         az_fut = await self.send_request(
             self.base_url % "placement/availability-zone",
-            headers=self.headers,
-            response="text",
+            headers=self.headers
         )
         return az_fut.split("/")[-1]
 
@@ -287,7 +280,8 @@ class AzureCollector(BaseCollector):
         """
         headers = {"Metadata": "true"}
         params = [("format", "json"), ("api-version", "2021-10-01")]
-        return await self.send_request(self.base_url, headers, params)
+        return await self.send_request(self.base_url, headers, params,
+                                       response="json")
 
     async def get_platform_meta(self) -> PlatformMeta:
         meta_response = await self.collect()
@@ -323,7 +317,7 @@ class AlibabaCollector(BaseCollector):
 
     @staticmethod
     async def send_request(
-        url, headers=None, params=None, response="json"
+        url, headers=None, params=None, response="text"
     ) -> str:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url, params=params) as resp:
@@ -335,33 +329,33 @@ class AlibabaCollector(BaseCollector):
 
     async def get_instance_id(self):
         return await self.send_request(
-            self.base_url % "instance-id", response="text"
+            self.base_url % "instance-id"
         )
 
     async def get_account_id(self):
         return await self.send_request(
-            self.base_url % "owner-account-id", response="text"
+            self.base_url % "owner-account-id"
         )
 
     async def get_local_ip(self):
         return await self.send_request(
-            self.base_url % "private-ipv4", response="text"
+            self.base_url % "private-ipv4"
         )
 
     async def get_public_ip(self):
         public_ip = await self.send_request(
-            self.base_url % "public-ipv4", response="text"
+            self.base_url % "public-ipv4"
         )
         if not public_ip:
             public_ip = await self.send_request(
-                self.base_url % "eipv4", response="text"
+                self.base_url % "eipv4"
             )
         return public_ip
 
     async def get_life_cycle(self):
         instance_lc = InstanceLifeCycle.Unknown
         lc_fut = await self.send_request(
-            self.base_url % "instance/spot/termination-time", response="text"
+            self.base_url % "instance/spot/termination-time"
         )
         if lc_fut:
             instance_lc = InstanceLifeCycle.Spot
@@ -369,22 +363,22 @@ class AlibabaCollector(BaseCollector):
 
     async def get_instance_type(self):
         return await self.send_request(
-            self.base_url % "instance/instance-type", response="text"
+            self.base_url % "instance/instance-type"
         )
 
     async def get_az(self):
         return await self.send_request(
-            self.base_url % "zone-id", response="text"
+            self.base_url % "zone-id"
         )
 
     async def get_region(self):
         return await self.send_request(
-            self.base_url % "region-id", response="text"
+            self.base_url % "region-id"
         )
 
     async def get_platform_meta(self):
         return PlatformMeta(
-            PlatformType.ali,
+            PlatformType.alibaba,
             await self.get_instance_id(),
             await self.get_account_id(),
             await self.get_local_ip(),
@@ -412,7 +406,7 @@ class CollectorFactory:
     match = {
         PlatformType.azure: AzureCollector,
         PlatformType.aws: AwsCollector,
-        PlatformType.ali: AlibabaCollector
+        PlatformType.alibaba: AlibabaCollector
     }
 
     @classmethod

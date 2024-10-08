@@ -119,6 +119,6 @@ class TestAlibabaCollector(AsyncTestCase):
         m_region.return_value = "eu-central-1"
         m_type.return_value = "ecs.t5-c1m1.large"
         platform_meta = await AlibabaCollector().get_platform_meta()
-        self.assertTrue(platform_meta.platform_type, PlatformType.ali)
+        self.assertTrue(platform_meta.platform_type, PlatformType.alibaba)
         self.assertTrue(platform_meta.instance_lc, InstanceLifeCycle.Spot)
         self.assertTrue(platform_meta.to_dict())
