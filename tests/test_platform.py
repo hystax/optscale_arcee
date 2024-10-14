@@ -6,6 +6,7 @@ from optscale_arcee.platform import (
     AzureCollector,
     CollectorFactory,
     PlatformType,
+    AlibabaCollector,
     AwsCollector,
     PlatformMeta,
     InstanceLifeCycle,
@@ -86,4 +87,38 @@ class TestAwsCollector(AsyncTestCase):
         platform_meta = await AwsCollector().get_platform_meta()
         self.assertTrue(platform_meta.platform_type, PlatformType.aws)
         self.assertTrue(platform_meta.instance_lc, InstanceLifeCycle.OnDemand)
+        self.assertTrue(platform_meta.to_dict())
+
+
+class TestAlibabaCollector(AsyncTestCase):
+    @patch("optscale_arcee.platform.AlibabaCollector.get_instance_type")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_region")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_az")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_life_cycle")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_public_ip")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_local_ip")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_account_id")
+    @patch("optscale_arcee.platform.AlibabaCollector.get_instance_id")
+    async def test_ali_collector_iface(
+        self,
+        m_instance_id,
+        m_account_id,
+        m_local_ip,
+        m_public_ip,
+        m_life_cycle,
+        m_az,
+        m_region,
+        m_type,
+    ):
+        m_instance_id.return_value = "i-gw8csaxjubfr17s2e1ip"
+        m_account_id.return_value = "00000000000"
+        m_local_ip.return_value = "192.168.0.83"
+        m_public_ip.return_value = "2.2.2.2"
+        m_life_cycle.return_value = InstanceLifeCycle.Spot
+        m_az.return_value = "eu-central-1a"
+        m_region.return_value = "eu-central-1"
+        m_type.return_value = "ecs.t5-c1m1.large"
+        platform_meta = await AlibabaCollector().get_platform_meta()
+        self.assertTrue(platform_meta.platform_type, PlatformType.alibaba)
+        self.assertTrue(platform_meta.instance_lc, InstanceLifeCycle.Spot)
         self.assertTrue(platform_meta.to_dict())
