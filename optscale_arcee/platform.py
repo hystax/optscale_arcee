@@ -286,7 +286,7 @@ class AzureCollector(BaseCollector):
     async def get_platform_meta(self) -> PlatformMeta:
         meta_response = await self.collect()
         if meta_response:
-            meta = AzureMeta.from_dict(json.loads(meta_response))
+            meta = AzureMeta.from_dict(meta_response)
             private_ip = public_ip = ""
             # TODO: check usage
             if meta.network and meta.network.interface:
