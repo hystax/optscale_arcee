@@ -246,15 +246,19 @@ class GcpCollector(BaseCollector):
 
     async def get_az(self):
         az_fut = await self.send_request(
-            self.base_url % "placement/availability-zone",
+            self.base_url % "instance/zone",
             headers=self.headers
         )
         return az_fut.split("/")[-1]
 
-    async def get_region(self):
-        # TODO
-        await asyncio.sleep(0)
-        return ""
+    async def get_locations(self):
+        az_fut = await self.send_request(
+            self.base_url % "instance/zone",
+            headers=self.headers
+        )
+        zone = az_fut.rsplit("/")[-1]
+        region = zone.rsplit('-', 1)[0]
+        return region, zone
 
     async def get_platform_meta(self):
         return PlatformMeta(
@@ -265,8 +269,7 @@ class GcpCollector(BaseCollector):
             await self.get_public_ip(),
             await self.get_life_cycle(),
             await self.get_instance_type(),
-            await self.get_region(),
-            await self.get_az(),
+            *(await self.get_locations())
         )
 
 
@@ -406,7 +409,8 @@ class CollectorFactory:
     match = {
         PlatformType.azure: AzureCollector,
         PlatformType.aws: AwsCollector,
-        PlatformType.alibaba: AlibabaCollector
+        PlatformType.alibaba: AlibabaCollector,
+        PlatformType.gcp: GcpCollector
     }
 
     @classmethod
