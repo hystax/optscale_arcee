@@ -244,20 +244,13 @@ class GcpCollector(BaseCollector):
         )
         return it_fut.split("/")[-1]
 
-    async def get_az(self):
-        az_fut = await self.send_request(
-            self.base_url % "instance/zone",
-            headers=self.headers
-        )
-        return az_fut.split("/")[-1]
-
     async def get_locations(self):
-        az_fut = await self.send_request(
+        location = await self.send_request(
             self.base_url % "instance/zone",
             headers=self.headers
         )
-        zone = az_fut.rsplit("/")[-1]
-        region = zone.rsplit('-', 1)[0]
+        zone = location.rsplit("/")[-1]
+        region = zone.rsplit("-", 1)[0]
         return region, zone
 
     async def get_platform_meta(self):
