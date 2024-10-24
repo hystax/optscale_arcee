@@ -8,6 +8,7 @@ from optscale_arcee.platform import (
     PlatformType,
     AlibabaCollector,
     AwsCollector,
+    GcpCollector,
     PlatformMeta,
     InstanceLifeCycle,
 )
@@ -121,4 +122,36 @@ class TestAlibabaCollector(AsyncTestCase):
         platform_meta = await AlibabaCollector().get_platform_meta()
         self.assertTrue(platform_meta.platform_type, PlatformType.alibaba)
         self.assertTrue(platform_meta.instance_lc, InstanceLifeCycle.Spot)
+        self.assertTrue(platform_meta.to_dict())
+
+
+class TestGcpCollector(AsyncTestCase):
+    @patch("optscale_arcee.platform.GcpCollector.get_instance_type")
+    @patch("optscale_arcee.platform.GcpCollector.get_locations")
+    @patch("optscale_arcee.platform.GcpCollector.get_life_cycle")
+    @patch("optscale_arcee.platform.GcpCollector.get_public_ip")
+    @patch("optscale_arcee.platform.GcpCollector.get_local_ip")
+    @patch("optscale_arcee.platform.GcpCollector.get_account_id")
+    @patch("optscale_arcee.platform.GcpCollector.get_instance_id")
+    async def test_gcp_collector_iface(
+        self,
+        m_instance_id,
+        m_account_id,
+        m_local_ip,
+        m_public_ip,
+        m_life_cycle,
+        m_locations,
+        m_type,
+    ):
+        m_instance_id.return_value = "3358770582979744445"
+        m_account_id.return_value = "accountid"
+        m_local_ip.return_value = "10.194.0.5"
+        m_public_ip.return_value = "3.3.3.3"
+        m_life_cycle.return_value = InstanceLifeCycle.OnDemand
+        m_locations.return_value = ("southamerica-west1",
+                                    "southamerica-west1-a")
+        m_type.return_value = "e2-standard-4"
+        platform_meta = await GcpCollector().get_platform_meta()
+        self.assertTrue(platform_meta.platform_type, PlatformType.gcp)
+        self.assertTrue(platform_meta.instance_lc, InstanceLifeCycle.OnDemand)
         self.assertTrue(platform_meta.to_dict())

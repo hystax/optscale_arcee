@@ -163,10 +163,10 @@ class AwsCollector(BaseCollector):
             "spot": InstanceLifeCycle.Spot,
             "on-demand": InstanceLifeCycle.OnDemand,
         }
-        lc_fut = await self.send_request(
+        life_cycle = await self.send_request(
             self.base_url % "instance-life-cycle"
         )
-        return match.get(lc_fut.lower(), InstanceLifeCycle.Unknown)
+        return match.get(life_cycle.lower(), InstanceLifeCycle.Unknown)
 
     async def get_instance_type(self):
         return await self.send_request(
@@ -231,30 +231,27 @@ class GcpCollector(BaseCollector):
             "true": InstanceLifeCycle.Spot,
             "false": InstanceLifeCycle.OnDemand,
         }
-        lc_fut = await self.send_request(
+        life_cycle = await self.send_request(
             self.base_url % "instance/scheduling/preemptible",
             headers=self.headers
         )
-        return match.get(lc_fut.lower(), InstanceLifeCycle.Unknown)
+        return match.get(life_cycle.lower(), InstanceLifeCycle.Unknown)
 
     async def get_instance_type(self):
-        it_fut = await self.send_request(
+        instance_type = await self.send_request(
             self.base_url % "instance/machine-type",
             headers=self.headers
         )
-        return it_fut.split("/")[-1]
+        return instance_type.split("/")[-1]
 
-    async def get_az(self):
-        az_fut = await self.send_request(
-            self.base_url % "placement/availability-zone",
+    async def get_locations(self):
+        location = await self.send_request(
+            self.base_url % "instance/zone",
             headers=self.headers
         )
-        return az_fut.split("/")[-1]
-
-    async def get_region(self):
-        # TODO
-        await asyncio.sleep(0)
-        return ""
+        zone = location.rsplit("/")[-1]
+        region = zone.rsplit("-", 1)[0]
+        return region, zone
 
     async def get_platform_meta(self):
         return PlatformMeta(
@@ -265,8 +262,7 @@ class GcpCollector(BaseCollector):
             await self.get_public_ip(),
             await self.get_life_cycle(),
             await self.get_instance_type(),
-            await self.get_region(),
-            await self.get_az(),
+            *(await self.get_locations())
         )
 
 
@@ -354,10 +350,10 @@ class AlibabaCollector(BaseCollector):
 
     async def get_life_cycle(self):
         instance_lc = InstanceLifeCycle.Unknown
-        lc_fut = await self.send_request(
+        life_cycle = await self.send_request(
             self.base_url % "instance/spot/termination-time"
         )
-        if lc_fut:
+        if life_cycle:
             instance_lc = InstanceLifeCycle.Spot
         return instance_lc
 
@@ -406,7 +402,8 @@ class CollectorFactory:
     match = {
         PlatformType.azure: AzureCollector,
         PlatformType.aws: AwsCollector,
-        PlatformType.alibaba: AlibabaCollector
+        PlatformType.alibaba: AlibabaCollector,
+        PlatformType.gcp: GcpCollector
     }
 
     @classmethod
