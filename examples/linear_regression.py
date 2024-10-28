@@ -5,6 +5,7 @@ import numpy as np
 
 import optscale_arcee as arcee
 
+STATS_FILENAME = 'stats.csv'
 
 # init arcee
 arcee.init(token="test", task_key="linear_regression")
@@ -89,7 +90,7 @@ def run_optimization():
 
 
 arcee.milestone("calculation")
-
+stats = []
 for step in range(1, training_steps + 1):
     run_optimization()
 
@@ -97,11 +98,28 @@ for step in range(1, training_steps + 1):
         pred = linear_regression(X)
         loss = mean_square(pred, Y)
         # send model stats
-        arcee.send({"step": step, "loss": "%f" % loss})
+        arcee.send({"step": step, "loss": loss})
         print(
             "step: %i, loss: %f, W: %f, b: %f"
             % (step, loss, W.numpy(), b.numpy())
         )
+        stats.append(",".join((str(x) for x in [step, float(loss),
+                                                float(W.numpy()),
+                                                float(b.numpy())])))
+
 arcee.milestone("calc done")
 arcee.model_version_alias("champion")
-arcee.finish()
+
+try:
+    with open(STATS_FILENAME, 'w') as file:
+        for line in stats:
+            file.write(line + '\n')
+        arcee.artifact(
+            STATS_FILENAME,
+            'Run stats',
+            tags={'training_steps': training_steps}
+        )
+    arcee.finish()
+except Exception as exc:
+    print("Error: %s" % str(exc))
+    arcee.error()
