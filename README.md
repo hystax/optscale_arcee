@@ -18,15 +18,28 @@ import optscale_arcee as arcee
 ```
 
 ## Initialization
-To initialize the arcee collector you need to provide a profiling token and a task key for which you want to collect data.
+To initialize the arcee collector use the `init` method with the following parameters:
+- token (str, required): the profiling token.
+- task_key (str, required): the task key for which you want to collect data.
+- run_name (str, optional): the run name.
+- endpoint_url (str, optional): the custom OptScale endpoint (default is https://my.optscale.com/arcee/v2).
+- ssl (bool, optional): enable/disable SSL checks (self-signed SSL certificates support).
+- period (int, optional): arcee daemon process heartbeat period in seconds (default is 1).
+
 To initialize the collector using a context manager, use the following code snippet:
 ```sh
-with arcee.init(token, task_key):
+with arcee.init(token="YOUR-PROFILING-TOKEN",
+                task_key="YOUR-TASK-KEY",
+                run_name="YOUR-RUN-NAME",
+                endpoint_url="https://YOUR-OPTSCALE-PUBLIC-IP:443/arcee/v2",
+                ssl=SSL,
+                period=PERIOD):
     # some code
 ```
 Example:
 ```sh
-with arcee.init("00000000-0000-0000-0000-000000000000", "linear_regression"):
+with arcee.init("00000000-0000-0000-0000-000000000000", "linear_regression",
+                "My first run", "https://172.18.12.3:443/arcee/v2", False, 5):
     # some code
 ```
 This method automatically handles error catching and terminates arcee execution.
@@ -34,29 +47,18 @@ This method automatically handles error catching and terminates arcee execution.
 Alternatively, to get more control over error catching and execution finishing, you can initialize the collector using a corresponding method.
 Note that this method will require you to manually handle errors or terminate arcee execution using the `error` and `finish` methods.
 ```sh
-arcee.init(token, task_key)
+arcee.init(token="YOUR-PROFILING-TOKEN", task_key="YOUR-TASK-KEY")
 # some code
 arcee.finish()
 # or in case of error
 arcee.error()
 ```
 
-To use a custom endpoint and enable/disable SSL checks (enable self-signed SSL certificates support):
-```sh
-with arcee.init(token, task_key, endpoint_url="https://my.custom.endpoint:443/arcee/v2", ssl=False):
-    # some code
-```
-Arcee daemon process periodically sends hardware and process data. The default heartbeat period is 1 second. However, arcee can be initialized with a custom period:
-```sh
-with arcee.init(token, task_key, period=5):
-    # some code
-```
-
 ## Sending metrics
 To send metrics, use the `send` method with the following parameter:
 - data (dict, required): a dictionary of metric names and their respective values (note that metric data values should be numeric).
 ```sh
-arcee.send({ "metric_key_1": value_1, "metric_key_2": value_2 })
+arcee.send({"YOUR-METRIC-1-KEY": YOUR_METRIC_1_VALUE, "YOUR-METRIC-2-KEY": YOUR_METRIC_2_VALUE})
 ```
 Example:
 ```sh
@@ -68,7 +70,7 @@ To add hyperparameters, use the `hyperparam` method with the following parameter
 - key (str, required): the hyperparameter name.
 - value (str | number, required): the hyperparameter value.
 ```sh
-arcee.hyperparam(key, value)
+arcee.hyperparam(key="YOUR-PARAM-KEY", value=YOUR_PARAM_VALUE)
 ```
 Example:
 ```sh
@@ -80,7 +82,7 @@ To tag a run, use the `tag` method with the following parameters:
 - key (str, required): the tag name.
 - value (str | number, required): the tag value.
 ```sh
-arcee.tag(key, value)
+arcee.tag(key="YOUR-TAG-KEY", value=YOUR_TAG_VALUE)
 ```
 Example:
 ```sh
@@ -91,7 +93,7 @@ arcee.tag("Algorithm", "Linear Learn Algorithm")
 To add a milestone, use the `milestone` method with the following parameter:
 - name (str, required): the milestone name.
 ```sh
-arcee.milestone(name)
+arcee.milestone(name="YOUR-MILESTONE-NAME")
 ```
 Example:
 ```sh
@@ -102,7 +104,7 @@ arcee.milestone("Download training data")
 To add a stage, use the `stage` method with the following parameter:
 - name (str, required): the stage name.
 ```sh
-arcee.stage(name)
+arcee.stage(name="YOUR-STAGE-NAME")
 ```
 Example:
 ```sh
@@ -116,7 +118,10 @@ To log a dataset, use the `dataset` method with the following parameters:
 - description (str, optional): the dataset description.
 - labels (list, optional): the dataset labels.
 ```sh
-arcee.dataset(path, name, description, labels)
+arcee.dataset(path="YOUR-DATASET-PATH",
+              name="YOUR-DATASET-NAME",
+              description="YOUR-DATASET-DESCRIPTION",
+              labels=["YOUR-DATASET-LABEL-1", "YOUR-DATASET-LABEL-2"])
 ```
 Example:
 ```sh
@@ -131,7 +136,7 @@ To create a model, use the `model` method with the following parameters:
 - key (str, required): the unique model key.
 - path (str, optional): the run model path.
 ```sh
-arcee.model(key, path)
+arcee.model(key="YOUR-MODEL-KEY", path="YOUR-MODEL-PATH")
 ```
 Example:
 ```sh
@@ -142,7 +147,7 @@ arcee.model("my_model", "/home/user/my_model")
 To set a custom model version, use the `model_version` method with the following parameter:
 - version (str, required): the version name.
 ```sh
-arcee.model_version(version)
+arcee.model_version(version="YOUR-MODEL-VERSION")
 ```
 Example:
 ```sh
@@ -153,7 +158,7 @@ arcee.model_version("1.2.3-release")
 To set a model version alias, use the `model_version_alias` method with the following parameter:
 - alias (str, required): the alias name.
 ```sh
-arcee.model_version_alias(alias)
+arcee.model_version_alias(alias="YOUR-MODEL-VERSION-ALIAS")
 ```
 Example:
 ```sh
@@ -163,9 +168,9 @@ arcee.model_version_alias("winner")
 ## Setting model version tag
 To add tags to a model version, use the `model_version_tag` method with the following parameters:
 - key (str, required): the tag name.
-- value (str, required): the tag value.
+- value (str | number, required): the tag value.
 ```sh
-arcee.model_version_tag(key, value)
+arcee.model_version_tag(key="YOUR-MODEL-VERSION-TAG-KEY", value=YOUR_MODEL_VERSION_TAG_VALUE)
 ```
 Example:
 ```sh
@@ -179,7 +184,10 @@ To create an artifact, use the `artifact` method with the following parameters:
 - description (str, optional): the artifact description.
 - tags (dict, optional): the artifact tags.
 ```sh
-arcee.artifact(path, name, description, tags)
+arcee.artifact(path="YOUR-ARTIFACT-PATH",
+               name="YOUR-ARTIFACT-NAME",
+               description="YOUR-ARTIFACT-DESCRIPTION",
+               tags={"YOUR-ARTIFACT-TAG-KEY": YOUR_ARTIFACT_TAG_VALUE})
 ```
 Example:
 ```sh
@@ -193,9 +201,11 @@ arcee.artifact("https://s3/ml-bucket/artifacts/AccuracyChart.png",
 To add a tag to an artifact, use the `artifact_tag` method with the following parameters:
 - path (str, required): the run artifact path.
 - key (str, required): the tag name.
-- value (str, required): the tag value.
+- value (str | number, required): the tag value.
 ```sh
-arcee.artifact_tag(path, key, value)
+arcee.artifact_tag(path="YOUR-ARTIFACT-PATH",
+                   key="YOUR-ARTIFACT-TAG-KEY",
+                   value=YOUR_ARTIFACT_TAG_VALUE)
 ```
 Example:
 ```sh
