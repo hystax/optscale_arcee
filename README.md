@@ -36,12 +36,21 @@ with arcee.init(token="YOUR-PROFILING-TOKEN",
                 period=PERIOD):
     # some code
 ```
-Example:
+
+Examples:
 ```sh
 with arcee.init("00000000-0000-0000-0000-000000000000", "linear_regression",
-                "My first run", "https://172.18.12.3:443/arcee/v2", False, 5):
+                run_name="My run name", ssl=True, period=1):
     # some code
 ```
+For custom OptScale deployments:
+```sh
+with arcee.init("00000000-0000-0000-0000-000000000000", "linear_regression",
+                run_name="My run name", endpoint_url="https://172.18.12.3:443/arcee/v2",
+                ssl=False, period=5):
+    # some code
+```
+
 This method automatically handles error catching and terminates arcee execution.
 
 Alternatively, to get more control over error catching and execution finishing, you can initialize the collector using a corresponding method.
