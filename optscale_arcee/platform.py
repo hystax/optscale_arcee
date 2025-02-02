@@ -137,6 +137,37 @@ class BaseCollector:
 class AwsCollector(BaseCollector):
     base_url = "http://169.254.169.254/latest/meta-data/%s"
 
+    @staticmethod
+    async def send_request(
+            url, headers=None, params=None, response="text"
+    ) -> str:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url, params=params) as resp:
+                if resp.status == 401:  # Handle Unauthorized error
+                    # Request a token for IMDSv2
+                    token = await AwsCollector.get_metadata_token(session)
+                    if token:
+                        headers = headers or {}
+                        headers["X-aws-ec2-metadata-token"] = token
+                        return await AwsCollector.send_request(
+                            url, headers, params, response)
+                    else:
+                        raise Exception(
+                            "Failed to retrieve IMDSv2 metadata token")
+
+                if response == "json":
+                    return await resp.json()
+                return await resp.text()
+
+    @staticmethod
+    async def get_metadata_token(session, ttl=21600):
+        token_url = "http://169.254.169.254/latest/api/token"
+        headers = {"X-aws-ec2-metadata-token-ttl-seconds": "%s" % ttl}
+        async with session.put(token_url, headers=headers) as token_resp:
+            if token_resp.status == 200:
+                return await token_resp.text()
+            return None
+
     async def get_instance_id(self):
         return await self.send_request(
             self.base_url % "instance-id"
