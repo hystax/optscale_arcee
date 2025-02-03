@@ -3,10 +3,11 @@ import os
 import concurrent.futures
 from functools import reduce
 
-import GPUtil
 import psutil
 
+from optscale_arcee.libs.GPUtil import GPUtil
 from optscale_arcee.utils import run_async
+
 
 # tune accuracy depending on #cpus
 _MEASURE_TIME = 1 - 1 / (os.cpu_count())
