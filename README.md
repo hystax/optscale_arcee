@@ -5,7 +5,7 @@ Arcee is a tool that helps you to integrate ML tasks with [OptScale](https://my.
 This tool can automatically collect executor metadata from the cloud and process stats.
 
 ## Installation
-Arcee requires Python 3.7+ to run.
+Arcee requires Python 3.8+ to run.
 To install the `optscale_arcee` package, use pip:
 ```sh
 pip install optscale-arcee

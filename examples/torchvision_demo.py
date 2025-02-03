@@ -67,7 +67,7 @@ def test(dataloader, model, loss_fn):
     correct /= size
     arcee.send({"accuracy": 100 * correct})
     print(
-        f"Error: \n Accuracy: {(100*correct):>0.1f}%,"
+        f"Error: \n Accuracy: {(100 * correct):>0.1f}%,"
         f"Avg loss: {test_loss:>8f} \n"
     )
 
