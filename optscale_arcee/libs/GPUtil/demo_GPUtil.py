@@ -42,7 +42,8 @@ firstGPU = GPU.getFirstAvailable()
 print("First available GPU id:"),
 print(firstGPU)
 
-# Get the first available GPU, where memory usage is less than 90% and processing is less than 80%
+# Get the first available GPU, where memory usage is less than 90% and
+# processing is less than 80%
 firstGPU = GPU.getFirstAvailable(maxMemory=0.9, maxLoad=0.8)
 print("First available GPU id (memory < 90%, load < 80%):"),
 print(firstGPU)
@@ -53,8 +54,9 @@ firstGPU = GPU.getFirstAvailable(
 )
 print("First available GPU id (load < 1%):"),
 print(firstGPU)
-# NOTE: If all your GPUs currently have a load larger than 1%, this step will
-# fail. It's not a bug! It is intended to do so, if it does not find an available GPU.
+# NOTE: If all your GPUs currently have a load larger than 1%, this step
+# will fail. It's not a bug! It is intended to do so, if it does not find an
+# available GPU.
 
 # Get the first available GPU, where memory usage is less than 1%
 firstGPU = GPU.getFirstAvailable(
