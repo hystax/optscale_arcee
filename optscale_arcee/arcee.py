@@ -1,6 +1,8 @@
 import asyncio
+import atexit
 import time
 import threading
+import warnings
 
 from optscale_arcee.sender.sender import Sender
 from optscale_arcee.collectors.console import (
@@ -154,6 +156,18 @@ class Arcee:
         }
 
 
+def _unhandled_finish():
+    arcee = Arcee()
+    if not arcee.shutdown_flag.is_set():
+        warnings.warn(
+            "Run terminated unexpectedly! Please ensure that you use "
+            "`arcee.init()` as a context manager (`with arcee.init():`) or "
+            "explicitly call `arcee.finish()` / `arcee.error()`",
+            UserWarning
+        )
+        finish()
+
+
 def init(
     token, task_key, run_name=None, endpoint_url=None, ssl=True, period=1
 ):
@@ -162,15 +176,16 @@ def init(
     name = (
         run_name if run_name is not None else NameGenerator.get_random_name()
     )
+    arcee.name = name
     run_id = asyncio.run(arcee.sender.get_run_id(task_key, token, name))["id"]
     arcee.run = run_id
-    arcee.name = name
     arcee.hb = Job(
         meth_args=(arcee.sender, run_id, token),
         sleep=period,
         shutdown_flag=arcee.shutdown_flag,
     )
     arcee.hb.start()
+    atexit.register(_unhandled_finish)
     asyncio.run(
         arcee.sender.send_stats(
             arcee.token,
@@ -220,8 +235,7 @@ def dataset(path, name=None, description=None, labels=None):
         ))
 
 
-def finish():
-    release_console()
+def _send_console():
     arcee = Arcee()
     try:
         asyncio.run(
@@ -230,6 +244,15 @@ def finish():
                 arcee.token
             )
         )
+    except Exception:
+        pass
+
+
+def finish():
+    release_console()
+    arcee = Arcee()
+    _send_console()
+    try:
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
@@ -246,13 +269,8 @@ def finish():
 def error():
     release_console()
     arcee = Arcee()
+    _send_console()
     try:
-        asyncio.run(
-            arcee.sender.send_console(
-                arcee.run,
-                arcee.token
-            )
-        )
         asyncio.run(
             arcee.sender.change_state(
                 arcee.run,
