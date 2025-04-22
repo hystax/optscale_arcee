@@ -98,7 +98,7 @@ for step in range(1, training_steps + 1):
         pred = linear_regression(X)
         loss = mean_square(pred, Y)
         # send model stats
-        arcee.send({"step": step, "loss": loss})
+        arcee.send({"step": step, "loss": float(loss)})
         print(
             "step: %i, loss: %f, W: %f, b: %f"
             % (step, loss, W.numpy(), b.numpy())
