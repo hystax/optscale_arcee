@@ -1,5 +1,5 @@
 import optscale_arcee as arcee
-import time
+
 with arcee.init("test", "simple"):
     dataset = arcee.Dataset(key='test_dataset', description='test dataset')
 
