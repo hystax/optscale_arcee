@@ -133,12 +133,12 @@ Dataset parameters:
 - labels (list, optional): the dataset labels.
 
 Version parameters:
-- aliases (list, optional): list of aliases for this version
-- meta (dict, optional): dataset version meta
-- timespan_from (int, optional): dataset version timespan from
-- timespan_to (int, optional): dataset version timespan to
+- aliases (list, optional): the list of aliases for this version.
+- meta (dict, optional): the dataset version meta.
+- timespan_from (int, optional): the dataset version timespan from.
+- timespan_to (int, optional): the dataset version timespan to.
 ```sh
-dataset = arcee.Dataset('YOUR-DATASET-KEY', 
+dataset = arcee.Dataset(key='YOUR-DATASET-KEY', 
                         name='YOUR-DATASET-NAME',
                         description="YOUR-DATASET-DESCRIPTION",
                         ...
@@ -147,53 +147,63 @@ dataset.labels = ["YOUR-DATASET-LABEL-1", "YOUR-DATASET-LABEL-2"]
 dataset.aliases = ['YOUR-VERSION-ALIAS']
 ```
 To log a dataset, use the `log_dataset` method with the following parameters:
-- dataset (Dataset, required): dataset object
-- comment (str, optional): Usage comment
+- dataset (Dataset, required): the dataset object.
+- comment (str, optional): the usage comment.
 ```sh
-arcee.log_dataset(dataset, comment='LOGGING_COMMENT')
+arcee.log_dataset(dataset=dataset, comment='LOGGING_COMMENT')
 ```
 
 ### Using
-To use a dataset, use the `use_dataset` method with dataset `key:version`
-
+To use a dataset, use the `use_dataset` method with dataset `key:version`. 
+Parameters:
+- dataset (str, required): the dataset indentifier in key:version format.
+- comment (str, optional): the usage comment.
 ```sh
-dataset = arcee.use_dataset('YOUR-DATASET-KEY:YOUR-DATASET-VERSION-OR-ALIAS')
+dataset = arcee.use_dataset(
+    dataset='YOUR-DATASET-KEY:YOUR-DATASET-VERSION-OR-ALIAS')
 ```
 
 ### Adding files and downloading
 You can add or remove files from dataset and download it as well. 
 Supported file paths:
-- `file://` - local files
-- `s3://` - Amazon S3 files
+- `file://` - the local files.
+- `s3://` - the amazon S3 files.
+
+adding / removing files
 
 local:
 ```sh
-dataset.add_file('file://LOCAL_PATH_TO_FILE')
-arcee.log_dataset(dataset)
+dataset.remove_file(path='file://LOCAL_PATH_TO_FILE_1')
+dataset.add_file(path='file://LOCAL_PATH_TO_FILE_2')
+arcee.log_dataset(dataset=dataset)
 ```
 s3:
 ```sh
 os.environ['AWS_ACCESS_KEY_ID'] = 'AWS_ACCESS_KEY_ID'
 os.environ['AWS_SECRET_ACCESS_KEY'] = 'AWS_SECRET_ACCESS_KEY'
-dataset.add_file('s3://BUCKET/PATH')
-arcee.log_dataset(dataset)
+dataset.remove_file(path='s3://BUCKET/PATH_1')
+dataset.add_file(path='s3://BUCKET/PATH_2')
+arcee.log_dataset(dataset=dataset)
 ```
 downloading:
+Parameters:
+- overwrite (bool, optional): overwrite an existing dataset or skip 
+downloading if it already exists.
 ```sh
-dataset.download()
+dataset.download(overwrite=True)
 ```
 Example:
 ```sh
 # use version v0, v1 etc, or any version alias: my_dataset:latest
-dataset = arcee.use_dataset('my_dataset:V0')
+dataset = arcee.use_dataset(dataset='my_dataset:V0')
 path_map = dataset.download()
 for local_path in path_map.values():
     with open(local_path, 'r'):
         # read downloaded file
 
 new_dataset = arcee.Dataset('new_dataset')
-new_dataset.add_file('s3://ml-bucket/datasets/training_dataset.csv')
-arcee.log_dataset(new_dataset)
+new_dataset.add_file(path='s3://ml-bucket/datasets/training_dataset.csv')
+arcee.log_dataset(dataset=new_dataset)
 new_dataset.download()
 ```
 

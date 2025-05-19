@@ -217,7 +217,8 @@ def use_dataset(dataset: str, comment: str = None) -> Dataset:
     """
     Use dataset
     Args:
-        dataset: dataset indentifier in key:version format
+        dataset: the dataset indentifier in key:version format
+        comment: the usage comment
     Returns: Dataset
     """
     arcee = Arcee()
