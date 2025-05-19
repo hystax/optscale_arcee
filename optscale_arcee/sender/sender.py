@@ -138,26 +138,23 @@ class Sender:
         return f"Discovered in training {task_key} - {run_name}({run_id})"
 
     @check_shutdown_flag_set
-    async def register_dataset(self, token, run_id, run_name, task_key, path,
-                               dataset_name=None, description=None,
-                               labels=None):
+    async def register_dataset(self, token, run_id, run_name, task_key, body,
+                               comment=None):
         uri = f"{self.endpoint_url}/run/{run_id}/dataset_register"
         headers = {"x-api-key": token, "Content-Type": "application/json"}
+        if 'description' not in body:
+            body['description'] = self.generate_description(
+                task_key, run_name, run_id)
+        if comment:
+            body['comment'] = comment
+        return await self.send_post_request(uri, headers, body)
 
-        if dataset_name is None:
-            dataset_name = path
-        if not description:
-            description = self.generate_description(task_key, run_name, run_id)
-        if labels is not None and not isinstance(labels, list):
-            labels = [labels]
-
-        data = {
-            "path": path,
-            "name": dataset_name,
-            "description": description,
-            "labels": labels or []
-        }
-        await self.send_post_request(uri, headers, data)
+    @check_shutdown_flag_set
+    async def use_dataset(self, token, run_id, dataset: str, comment=None):
+        uri = f"{self.endpoint_url}/run/{run_id}/dataset_use"
+        headers = {"x-api-key": token, "Content-Type": "application/json"}
+        return await self.send_post_request(
+            uri, headers, {"dataset": dataset, "comment": comment})
 
     @check_shutdown_flag_set
     async def add_hyperparams(self, run_id, token, hyperparams):

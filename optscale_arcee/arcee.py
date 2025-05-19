@@ -7,6 +7,7 @@ from optscale_arcee.collectors.console import (
     acquire_console, release_console)
 from optscale_arcee.name_generator import NameGenerator
 from optscale_arcee.utils import single
+from optscale_arcee.modules.dataset import Dataset
 
 
 class Job(threading.Thread):
@@ -47,7 +48,6 @@ class Arcee:
         self._tags = dict()
         self._name = None
         self._hyperparams = dict()
-        self._dataset = None
         self._model = None
         self._model_version = None
         self._model_version_tags = dict()
@@ -87,14 +87,6 @@ class Arcee:
     def hyperparams(self, value):
         k, v = value
         self._hyperparams.update({k: v})
-
-    @property
-    def dataset(self):
-        return self._dataset
-
-    @dataset.setter
-    def dataset(self, value):
-        self._dataset = value
 
     def __enter__(self):
         return self
@@ -210,14 +202,29 @@ def stage(name):
     asyncio.run(arcee.sender.create_stage(arcee.run, arcee.token, name))
 
 
-def dataset(path, name=None, description=None, labels=None):
+def log_dataset(dataset: Dataset, comment: str = None):
     arcee = Arcee()
-    if arcee.dataset is None:
-        arcee.dataset = path
-        asyncio.run(arcee.sender.register_dataset(
-            arcee.token, arcee.run, arcee.name, arcee.task_key, path, name,
-            description, labels
+    if dataset:
+        dataset.wait_ready()
+        dataset_dict = asyncio.run(arcee.sender.register_dataset(
+            arcee.token, arcee.run, arcee.name, arcee.task_key,
+            body=dataset.__dict__, comment=comment
         ))
+        dataset._version = dataset_dict["version"]["version"]
+
+
+def use_dataset(dataset: str, comment: str = None) -> Dataset:
+    """
+    Use dataset
+    Args:
+        dataset: the dataset indentifier in key:version format
+        comment: the usage comment
+    Returns: Dataset
+    """
+    arcee = Arcee()
+    dataset_dict = asyncio.run(arcee.sender.use_dataset(
+        arcee.token, arcee.run, dataset, comment=comment))
+    return Dataset.from_response(dataset_dict)
 
 
 def finish():
