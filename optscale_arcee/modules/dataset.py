@@ -89,7 +89,7 @@ class Dataset(object):
         }
 
     def add_file(self, path):
-        if path in self._files:
+        if path in self._files and self._version is None:
             return
         self._version = None
         self._files[path] = None
