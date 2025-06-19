@@ -1,3 +1,4 @@
+import asyncio
 import math
 import os
 import concurrent.futures
@@ -12,6 +13,8 @@ from optscale_arcee.utils import run_async
 # tune accuracy depending on #cpus
 _MEASURE_TIME = 1 - 1 / (os.cpu_count())
 _TIME_INTERVALS = (_MEASURE_TIME + 0.05, _MEASURE_TIME + 0.01)
+
+BYTES_IN_KiB = 1024
 
 
 class Collector:
@@ -112,6 +115,43 @@ class Collector:
             "proc": ps_info,
         }
 
+    @staticmethod
+    async def _io(interval: float = 1):
+        def _get_io():
+            disk = psutil.disk_io_counters()
+            net = psutil.net_io_counters()
+            return {
+                "disk_read": disk.read_bytes,
+                "disk_write": disk.write_bytes,
+                "net_sent": net.bytes_sent,
+                "net_recv": net.bytes_recv
+            }
+
+        before = _get_io()
+        await asyncio.sleep(interval)
+        after = _get_io()
+        disk_read = round(
+            (after['disk_read'] - before['disk_read']) / BYTES_IN_KiB, 2)
+        disk_write = round(
+            (after['disk_write'] - before['disk_write']) / BYTES_IN_KiB, 2)
+        net_sent = round(
+            (after['net_sent'] - before['net_sent']) / BYTES_IN_KiB, 2)
+        net_recv = round(
+            (after['net_recv'] - before['net_recv']) / BYTES_IN_KiB, 2)
+        return disk_read, disk_write, net_sent, net_recv
+
     @classmethod
     async def collect_stats(cls):
-        return await run_async(cls._collect_stats, executor=cls.executor)
+        disk_read, disk_write, net_sent, net_recv = await cls._io()
+        result = {
+            # IO stats in KiB/s
+            "io_stats": {
+                "disk_read": disk_read,
+                "disk_write": disk_write,
+                "net_sent": net_sent,
+                "net_recv": net_recv,
+            }
+        }
+        ps_stats = await run_async(cls._collect_stats, executor=cls.executor)
+        result.update(ps_stats)
+        return result
